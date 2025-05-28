@@ -73,3 +73,17 @@ html.dark body {
   --color-active-tab-text: #fff;
   --color-tab-text: #ddd;
 }
+
+button:hover .hover-bg {
+  opacity: 0.2; /* translucent hover background */
+}
+
+.tab-content {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.tab-content.show {
+  opacity: 1;
+  transform: translateY(0);
+}
