@@ -57,3 +57,19 @@ html.dark body {
   background-color: #121212;
   color: #eeeeee;
 }
+
+/* Light mode */
+:root {
+  --bg-tabs: #f3f3f3;
+  --bg-active-tab: #0073bb;
+  --color-active-tab-text: white;
+  --color-tab-text: black;
+}
+
+/* Dark mode */
+.dark {
+  --bg-tabs: #222;
+  --bg-active-tab: #0a84ff;
+  --color-active-tab-text: #fff;
+  --color-tab-text: #ddd;
+}
