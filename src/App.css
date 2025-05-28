@@ -40,3 +40,20 @@
 .read-the-docs {
   color: #888;
 }
+
+
+
+
+
+/* Light mode (default) */
+body {
+  background-color: white;
+  color: black;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode applied via class on <html> */
+html.dark body {
+  background-color: #121212;
+  color: #eeeeee;
+}
