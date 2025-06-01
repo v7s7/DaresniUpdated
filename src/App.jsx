@@ -1,32 +1,51 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
-import StudentDashboard from './pages/StudentDashboard'
-import TutorDashboard from './pages/TutorDashBoard'
-import ThemeToggle from './components/ThemeToggle'
-import './App.css'
-
-function Home() {
-  return <h2>Home Page</h2>
-}
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import StudentDashboard from './pages/StudentDashboard';
+import TutorDashboard from './pages/TutorDashBoard';
+import LoginPage from './pages/Login/LoginPage';
+import SignUpPage from './pages/SignUp/SignUpPage';
+import ThemeToggle from './components/ThemeToggle';
+import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
+import './App.css';
 
 function App() {
   return (
     <BrowserRouter>
       <div>
         <nav>
-          <Link to="/">Home</Link> |{' '}
-          <Link to="/student">Student Dashboard</Link> |{' '}
-          <Link to="/tutor">Tutor Dashboard</Link> |{' '}
           <ThemeToggle />
         </nav>
 
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/tutor" element={<TutorDashboard />} />
+          {/* Default route ("/") goes to Login */}
+          <Route path="/" element={<LoginPage />} />
+
+          {/* SignUp route */}
+          <Route path="/signup" element={<SignUpPage />} />
+
+          {/* Protected Dashboards */}
+          <Route
+            path="/student"
+            element={
+              <ProtectedRoute>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tutor"
+            element={
+              <ProtectedRoute>
+                <TutorDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Optional catch-all route for undefined URLs */}
+          {/* <Route path="*" element={<Navigate to="/" />} /> */}
         </Routes>
       </div>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
