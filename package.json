@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "daresni-senior": "file:",
+    "firebase": "^11.8.1",
     "framer-motion": "^12.15.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
