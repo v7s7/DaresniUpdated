@@ -47,7 +47,7 @@
   margin-top: 10px;
   padding: 10px;
   width: 100%;
-  background-color: #4285f4;
+  background-color: #3b76d6;
   color: white;
   border: none;
   border-radius: 5px;
@@ -57,4 +57,12 @@
 
 .google-btn:hover {
   background-color: #357ae8;
+}
+
+
+.google-btn .google-icon {
+  width: 20px; /* Icon size */
+  height: 20px;
+  margin-right: 10px; /* Space between icon and text */
+  background-color: transparent; 
 }

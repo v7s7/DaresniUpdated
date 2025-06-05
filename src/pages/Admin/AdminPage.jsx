@@ -1,17 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function TutorDashboard() {
+export default function AdminPage() {
+  // Tabs array with Tutors, Students, Institutes, Dashboard, and Settings
   const tabs = [
-    { id: 'requests', label: 'Requests' },
-    { id: 'Upcoming', label: 'Upcoming' },
-    { id: 'history', label: 'History' },
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'tutors', label: 'Tutors' },
+    { id: 'students', label: 'Students' },
+    { id: 'institutes', label: 'Institutes' },
+    { id: 'settings', label: 'Settings' }
   ];
 
-  const [activeTab, setActiveTab] = useState('requests');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [fade, setFade] = useState(true);
   const buttonsRef = useRef({});
   const highlightRef = useRef();
 
+  // Effect to position the highlight bar based on the active tab
   useEffect(() => {
     const activeBtn = buttonsRef.current[activeTab];
     if (activeBtn && highlightRef.current) {
@@ -28,14 +32,19 @@ export default function TutorDashboard() {
     return () => clearTimeout(timeout);
   }, [activeTab]);
 
+  // Render the content based on the active tab
   const renderContent = () => {
     switch (activeTab) {
-      case 'requests':
-        return <p>No new session requests.</p>;
-      case 'Upcoming':
-        return <p>Your upcoming schedule will appear here.</p>;
-      case 'history':
-        return <p>No past sessions available.</p>;
+      case 'dashboard':
+        return <p>Welcome to the admin dashboard.</p>;
+      case 'tutors':
+        return <p>Manage tutors here.</p>;
+      case 'students':
+        return <p>Manage students here.</p>;
+      case 'institutes':
+        return <p>Manage institutes here.</p>;
+      case 'settings':
+        return <p>Configure your application settings here.</p>;
       default:
         return null;
     }
@@ -49,7 +58,7 @@ export default function TutorDashboard() {
           display: 'flex',
           justifyContent: 'center',
           gap: '1rem',
-          background: 'var(--bg-tabs)',
+          background: 'var(--bg-tabs)', // Set background for tabs
           padding: '0.5rem',
           borderRadius: '999px',
           marginBottom: '1rem',
@@ -63,12 +72,12 @@ export default function TutorDashboard() {
             top: '0.5rem',
             left: 0,
             height: '2.5rem',
-            backgroundColor: 'var(--bg-active-tab)',
+            backgroundColor: 'var(--bg-active-tab)', // Active tab highlight color
             borderRadius: '999px',
             pointerEvents: 'none',
             zIndex: 0,
             transition:
-              'width 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+              'width 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)', // Smooth transition
           }}
         />
         {tabs.map((tab) => (

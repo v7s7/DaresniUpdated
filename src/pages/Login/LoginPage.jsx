@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
+import googleIcon from './google.png';  // Import the image
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -39,8 +40,7 @@ const LoginPage = () => {
       if (userDoc.exists()) {
         await redirectBasedOnRole(user.uid);
       } else {
-        // User is new, prompt for role selection
-        setPendingGoogleUser(user);
+        setPendingGoogleUser(user); // Prompt for role selection if new user
       }
     } catch (err) {
       setError(err.message);
@@ -74,6 +74,8 @@ const LoginPage = () => {
         navigate('/student');
       } else if (role === 'tutor') {
         navigate('/tutor');
+      } else if (role === 'admin') {
+        navigate('/admin');
       } else {
         setError('Role not assigned. Please contact support.');
       }
@@ -92,6 +94,7 @@ const LoginPage = () => {
             <option value="">Select</option>
             <option value="student">Student</option>
             <option value="tutor">Tutor</option>
+            <option value="admin">Admin</option> {/* Added admin role */}
           </select>
           <button type="submit">Continue</button>
           {error && <p className="error">{error}</p>}
@@ -115,6 +118,7 @@ const LoginPage = () => {
             {error && <p className="error">{error}</p>}
           </form>
           <button onClick={handleGoogleSignIn} className="google-btn">
+            <img src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/google-logo.5867462c.svg" alt="Google" className="google-icon" />
             Sign in with Google
           </button>
           <p>

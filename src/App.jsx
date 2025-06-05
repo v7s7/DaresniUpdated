@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import AdminPage from './pages/Admin/AdminPage'; 
 import StudentDashboard from './pages/StudentDashboard';
 import TutorDashboard from './pages/TutorDashBoard';
 import LoginPage from './pages/Login/LoginPage';
 import SignUpPage from './pages/SignUp/SignUpPage';
 import ThemeToggle from './components/ThemeToggle';
-import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
+import ProtectedRoute from './components/ProtectedRoute'; 
 import './App.css';
 
 function App() {
@@ -21,6 +22,16 @@ function App() {
 
           {/* SignUp route */}
           <Route path="/signup" element={<SignUpPage />} />
+
+          {/* Admin Route */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Protected Dashboards */}
           <Route
