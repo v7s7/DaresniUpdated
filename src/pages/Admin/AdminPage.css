@@ -34,3 +34,15 @@ h1 {
   font-size: 24px;
 }
 
+:root {
+  --bg-tab-item: #f0f0f0;
+  --text-tab-item: #333;
+  --border-tab-item: #ddd;
+}
+
+html.dark {
+  --bg-tab-item: #1f1f1f;
+  --text-tab-item: #f9f9f9;
+  --border-tab-item: #333;
+}
+

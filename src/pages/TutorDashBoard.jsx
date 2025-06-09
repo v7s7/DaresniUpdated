@@ -1,17 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 
 export default function TutorDashboard() {
+  // Tab definitions
   const tabs = [
     { id: 'requests', label: 'Requests' },
     { id: 'Upcoming', label: 'Upcoming' },
     { id: 'history', label: 'History' },
   ];
 
-  const [activeTab, setActiveTab] = useState('requests');
-  const [fade, setFade] = useState(true);
-  const buttonsRef = useRef({});
-  const highlightRef = useRef();
+  const [activeTab, setActiveTab] = useState('requests'); // Track current tab
+  const [fade, setFade] = useState(true); // Handle fade animation
+  const buttonsRef = useRef({}); // Store tab button references
+  const highlightRef = useRef(); // Ref for the active tab highlight bar
 
+  // Move highlight bar to match active tab
   useEffect(() => {
     const activeBtn = buttonsRef.current[activeTab];
     if (activeBtn && highlightRef.current) {
@@ -22,12 +24,14 @@ export default function TutorDashboard() {
     }
   }, [activeTab]);
 
+  // Animate fade on tab change
   useEffect(() => {
-    setFade(false);
-    const timeout = setTimeout(() => setFade(true), 150);
+    setFade(false); // start fade out
+    const timeout = setTimeout(() => setFade(true), 150); // fade in after delay
     return () => clearTimeout(timeout);
   }, [activeTab]);
 
+  // Tab-specific content
   const renderContent = () => {
     switch (activeTab) {
       case 'requests':
@@ -43,6 +47,7 @@ export default function TutorDashboard() {
 
   return (
     <div style={{ padding: '1rem' }}>
+      {/* Tab navigation container */}
       <div
         style={{
           position: 'relative',
@@ -56,6 +61,7 @@ export default function TutorDashboard() {
           userSelect: 'none',
         }}
       >
+        {/* Animated highlight for active tab */}
         <div
           ref={highlightRef}
           style={{
@@ -71,6 +77,8 @@ export default function TutorDashboard() {
               'width 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         />
+
+        {/* Render each tab button */}
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -91,19 +99,19 @@ export default function TutorDashboard() {
               zIndex: 1,
               transition: 'color 0.3s ease',
             }}
-            onFocus={(e) => (e.target.style.outline = 'none')}
+            onFocus={(e) => (e.target.style.outline = 'none')} // Remove blue outline
             onMouseEnter={(e) => {
               const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg && activeTab !== tab.id) bg.style.opacity = '0.15';
+              if (bg && activeTab !== tab.id) bg.style.opacity = '0.15'; // Hover effect
             }}
             onMouseLeave={(e) => {
               const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg) bg.style.opacity = '0';
+              if (bg) bg.style.opacity = '0'; // Reset hover
             }}
           >
             {tab.label}
             <span
-              className="hover-bg"
+              className="hover-bg" // Hover background layer
               style={{
                 position: 'absolute',
                 top: 0,
@@ -121,6 +129,8 @@ export default function TutorDashboard() {
           </button>
         ))}
       </div>
+
+      {/* Tab content section with fade transition */}
       <div
         key={activeTab}
         style={{

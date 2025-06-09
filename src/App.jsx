@@ -12,6 +12,7 @@ function App() {
   return (
     <BrowserRouter>
       <div>
+         {/* Global nav bar (only contains theme toggle for now) */}
         <nav>
           <ThemeToggle />
         </nav>
@@ -23,6 +24,8 @@ function App() {
           {/* SignUp route */}
           <Route path="/signup" element={<SignUpPage />} />
 
+          {/* Protected Routes */}
+
           {/* Admin Route */}
           <Route
             path="/admin"
@@ -33,7 +36,7 @@ function App() {
             }
           />
 
-          {/* Protected Dashboards */}
+          {/* Student dashboard, protected */}
           <Route
             path="/student"
             element={
@@ -42,6 +45,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Tutor dashboard, protected */}
           <Route
             path="/tutor"
             element={

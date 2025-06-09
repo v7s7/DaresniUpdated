@@ -4,7 +4,11 @@
   align-items: center;
   justify-content: center;
   height: 90vh;
+  color: var(--color-form-text);
+  padding: 2rem;
+  border-radius: 8px;
 }
+
 
 .login-container h2 {
   margin-bottom: 20px;
@@ -22,20 +26,26 @@
   font-size: 1em;
   border: 1px solid #ccc;
   border-radius: 5px;
+  background-color: var(--bg-input);
+  color: var(--color-form-text);
+}
+
+.login-form input::placeholder {
+  color: var(--color-placeholder);
 }
 
 .login-form button {
   padding: 10px;
   font-size: 1em;
-  background-color: #333;
-  color: #fff;
+  background-color: var(--bg-button);
+  color: var(--color-button-text);
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .login-form button:hover {
-  background-color: #555;
+  background-color: var(--bg-button-hover);
 }
 
 .error {
@@ -43,11 +53,12 @@
   font-size: 0.9em;
   text-align: center;
 }
+
 .google-btn {
   margin-top: 10px;
   padding: 10px;
   width: 100%;
-  background-color: #3b76d6;
+  background-color: var(--bg-google);
   color: white;
   border: none;
   border-radius: 5px;
@@ -56,13 +67,19 @@
 }
 
 .google-btn:hover {
-  background-color: #357ae8;
+  background-color: var(--bg-google-hover);
 }
 
 
 .google-btn .google-icon {
-  width: 20px; /* Icon size */
+  width: 20px;
   height: 20px;
-  margin-right: 10px; /* Space between icon and text */
-  background-color: transparent; 
+  margin-right: 10px;
+  background-color: transparent;
+}
+
+.login-container,
+.login-form input,
+.login-form button {
+  transition: background-color 0.3s ease, color 0.3s ease;
 }

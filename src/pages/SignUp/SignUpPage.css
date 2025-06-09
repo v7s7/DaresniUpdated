@@ -39,3 +39,18 @@
   font-size: 0.9em;
   text-align: center;
 }
+
+.google-btn {
+  margin-top: 10px;
+  background-color: #4285F4;
+  color: white;
+  padding: 10px;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.google-btn:hover {
+  background-color: #357ae8;
+}

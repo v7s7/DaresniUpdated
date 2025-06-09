@@ -60,18 +60,65 @@ html.dark body {
 
 /* Light mode */
 :root {
+  /* --bg-tabs: #222;
+  --bg-active-tab: #0a84ff;
+  --color-active-tab-text: #fff;
+  --color-tab-text: #ddd;
+  --bg-form: #1e1e1e;
+  --bg-input: #2c2c2c;
+  --color-form-text: #000;
+  --color-placeholder: #aaa;
+  --bg-button: #e0e0e0;
+  --bg-button-hover: #cccccc;
+  --color-button-text: #000;
+  --bg-google: #5b9dff;
+  --bg-google-hover: #4285f4; */
+
   --bg-tabs: #f3f3f3;
   --bg-active-tab: #0073bb;
   --color-active-tab-text: white;
   --color-tab-text: black;
+  --bg-form: #ffffff;
+  --bg-input: #f5f5f5;
+  --color-form-text: #000;
+  --color-placeholder: #888;
+  --bg-button: #e0e0e0;
+  --bg-button-hover: #cccccc;
+  --color-button-text: #000;
+  --bg-google: #3b76d6;
+  --bg-google-hover: #357ae8;
+
 }
 
 /* Dark mode */
 .dark {
+  /* --bg-tabs: #f3f3f3;
+  --bg-active-tab: #0073bb;
+  --color-active-tab-text: white;
+  --color-tab-text: black;
+  --bg-form: #ffffff;
+  --bg-input: #f5f5f5;
+  --color-form-text: #eee;
+  --color-placeholder: #888;
+  --bg-button: #333;
+  --bg-button-hover: #555;
+  --color-button-text: #fff;
+  --bg-google: #3b76d6;
+  --bg-google-hover: #357ae8; */
+
   --bg-tabs: #222;
   --bg-active-tab: #0a84ff;
   --color-active-tab-text: #fff;
   --color-tab-text: #ddd;
+  --bg-form: #1e1e1e;
+  --bg-input: #2c2c2c;
+  --color-form-text: #eee;
+  --color-placeholder: #aaa;
+  --bg-button: #333;
+  --bg-button-hover: #555;
+  --color-button-text: #fff;
+  --bg-google: #5b9dff;
+  --bg-google-hover: #4285f4;
 }
 
 button:hover .hover-bg {

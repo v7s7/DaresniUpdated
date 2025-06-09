@@ -1,17 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 
 export default function StudentDashboard() {
+  // Define available tabs
   const tabs = [
     { id: 'upcoming', label: 'Upcoming' },
     { id: 'tutors', label: 'Tutors' },
     { id: 'history', label: 'History' },
   ];
 
-  const [activeTab, setActiveTab] = useState('upcoming');
-  const buttonsRef = useRef({});
-  const highlightRef = useRef();
-  const [fade, setFade] = useState(true);
+  const [activeTab, setActiveTab] = useState('upcoming'); // Track which tab is active
+  const buttonsRef = useRef({}); // Store button refs for measuring position
+  const highlightRef = useRef(); // Ref for animated tab background
+  const [fade, setFade] = useState(true); // Control tab content fade animation
 
+  // Reposition highlight indicator under active tab
   useEffect(() => {
     const activeBtn = buttonsRef.current[activeTab];
     if (activeBtn && highlightRef.current) {
@@ -22,13 +24,14 @@ export default function StudentDashboard() {
     }
   }, [activeTab]);
 
-  // Trigger fade-out then fade-in on tab change
+  // Trigger fade effect when tab changes
   useEffect(() => {
     setFade(false); // fade out
-    const timeout = setTimeout(() => setFade(true), 150); // fade in after 150ms
+    const timeout = setTimeout(() => setFade(true), 150); // fade in after delay
     return () => clearTimeout(timeout);
   }, [activeTab]);
 
+  // Render tab-specific content
   const renderContent = () => {
     switch (activeTab) {
       case 'upcoming':
@@ -44,6 +47,7 @@ export default function StudentDashboard() {
 
   return (
     <div style={{ padding: '1rem' }}>
+      {/* Tab navigation */}
       <div
         style={{
           position: 'relative',
@@ -57,6 +61,7 @@ export default function StudentDashboard() {
           userSelect: 'none',
         }}
       >
+        {/* Animated background for active tab */}
         <div
           ref={highlightRef}
           style={{
@@ -73,6 +78,8 @@ export default function StudentDashboard() {
               'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         />
+
+        {/* Render each tab button */}
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -93,19 +100,19 @@ export default function StudentDashboard() {
               zIndex: 1,
               transition: 'color 0.3s ease',
             }}
-            onFocus={(e) => (e.target.style.outline = 'none')}
+            onFocus={(e) => (e.target.style.outline = 'none')} // Remove outline on focus
             onMouseEnter={(e) => {
               const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg && activeTab !== tab.id) bg.style.opacity = '0.15';
+              if (bg && activeTab !== tab.id) bg.style.opacity = '0.15'; // Show hover bg
             }}
             onMouseLeave={(e) => {
               const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg) bg.style.opacity = '0';
+              if (bg) bg.style.opacity = '0'; // Hide hover bg
             }}
           >
             {tab.label}
             <span
-              className="hover-bg"
+              className="hover-bg" // Hover effect layer
               style={{
                 position: 'absolute',
                 top: 0,
@@ -123,13 +130,15 @@ export default function StudentDashboard() {
           </button>
         ))}
       </div>
+
+      {/* Tab content area with fade animation */}
       <div
         key={activeTab}
         className="tab-content show"
         style={{
           opacity: fade ? 1 : 0,
           transition: 'opacity 0.3s ease',
-          minHeight: '2em', // prevent layout jump from text height
+          minHeight: '2em', // Prevent layout shift
         }}
       >
         {renderContent()}
