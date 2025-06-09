@@ -10,12 +10,12 @@ export default function AdminPage() {
     { id: 'settings', label: 'Settings' }
   ];
 
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [fade, setFade] = useState(true);
-  const buttonsRef = useRef({});
-  const highlightRef = useRef();
+  const [activeTab, setActiveTab] = useState('dashboard'); // Track which tab is currently active
+  const [fade, setFade] = useState(true); // Handle fade effect for content change
+  const buttonsRef = useRef({}); // Reference to store button elements
+  const highlightRef = useRef(); // Reference to highlight bar for active tab
 
-  // Effect to position the highlight bar based on the active tab
+  // Effect to move the highlight bar to the active tab position
   useEffect(() => {
     const activeBtn = buttonsRef.current[activeTab];
     if (activeBtn && highlightRef.current) {
@@ -24,15 +24,15 @@ export default function AdminPage() {
       highlightRef.current.style.width = `${rect.width}px`;
       highlightRef.current.style.transform = `translateX(${rect.left - parentRect.left}px)`;
     }
-  }, [activeTab]);
+  }, [activeTab]); // Runs every time the active tab changes
 
   useEffect(() => {
-    setFade(false);
-    const timeout = setTimeout(() => setFade(true), 150);
-    return () => clearTimeout(timeout);
+    setFade(false); // Start fading out content
+    const timeout = setTimeout(() => setFade(true), 150); // Fade back in after a short delay
+    return () => clearTimeout(timeout); // Clean up timeout when the component is removed
   }, [activeTab]);
 
-  // Render the content based on the active tab
+  // Render different content based on the active tab
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -72,7 +72,7 @@ export default function AdminPage() {
             top: '0.5rem',
             left: 0,
             height: '2.5rem',
-            backgroundColor: 'var(--bg-active-tab)', // Active tab highlight color
+            backgroundColor: 'var(--bg-active-tab)', // Highlight color for the active tab
             borderRadius: '999px',
             pointerEvents: 'none',
             zIndex: 0,
@@ -84,7 +84,7 @@ export default function AdminPage() {
           <button
             key={tab.id}
             ref={(el) => (buttonsRef.current[tab.id] = el)}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => setActiveTab(tab.id)} // Change active tab on button click
             style={{
               position: 'relative',
               padding: '0.5rem 1.5rem',
@@ -93,21 +93,21 @@ export default function AdminPage() {
               background: 'transparent',
               color:
                 activeTab === tab.id
-                  ? 'var(--color-active-tab-text)'
-                  : 'var(--color-tab-text)',
+                  ? 'var(--color-active-tab-text)' // Active tab text color
+                  : 'var(--color-tab-text)', // Inactive tab text color
               cursor: 'pointer',
               fontWeight: '600',
               zIndex: 1,
               transition: 'color 0.3s ease',
             }}
-            onFocus={(e) => (e.target.style.outline = 'none')}
+            onFocus={(e) => (e.target.style.outline = 'none')} // Remove outline on focus
             onMouseEnter={(e) => {
               const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg && activeTab !== tab.id) bg.style.opacity = '0.15';
+              if (bg && activeTab !== tab.id) bg.style.opacity = '0.15'; // Hover effect
             }}
             onMouseLeave={(e) => {
               const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg) bg.style.opacity = '0';
+              if (bg) bg.style.opacity = '0'; // Reset hover effect
             }}
           >
             {tab.label}
@@ -138,7 +138,7 @@ export default function AdminPage() {
           minHeight: '2em',
         }}
       >
-        {renderContent()}
+        {renderContent()} {/* Display content based on active tab */}
       </div>
     </div>
   );
