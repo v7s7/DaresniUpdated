@@ -1,19 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db, auth } from '../firebase';
+import TutorCard from '../components/TutorCard';
+import '../pages/Home/HomePage.css';
 
 export default function StudentDashboard() {
-  // Define available tabs
   const tabs = [
     { id: 'upcoming', label: 'Upcoming' },
     { id: 'tutors', label: 'Tutors' },
     { id: 'history', label: 'History' },
   ];
 
-  const [activeTab, setActiveTab] = useState('upcoming'); // Track which tab is active
-  const buttonsRef = useRef({}); // Store button refs for measuring position
-  const highlightRef = useRef(); // Ref for animated tab background
-  const [fade, setFade] = useState(true); // Control tab content fade animation
+  const [activeTab, setActiveTab] = useState('tutors');
+  const [fade, setFade] = useState(true);
+  const buttonsRef = useRef({});
+  const highlightRef = useRef();
 
-  // Reposition highlight indicator under active tab
+  const [bookings, setBookings] = useState([]);
+
+  // UI animation
   useEffect(() => {
     const activeBtn = buttonsRef.current[activeTab];
     if (activeBtn && highlightRef.current) {
@@ -24,22 +29,100 @@ export default function StudentDashboard() {
     }
   }, [activeTab]);
 
-  // Trigger fade effect when tab changes
   useEffect(() => {
-    setFade(false); // fade out
-    const timeout = setTimeout(() => setFade(true), 150); // fade in after delay
+    setFade(false);
+    const timeout = setTimeout(() => setFade(true), 150);
     return () => clearTimeout(timeout);
   }, [activeTab]);
 
-  // Render tab-specific content
+  // Load bookings
+  useEffect(() => {
+    const fetchBookings = async () => {
+      if (!auth.currentUser) return;
+      const q = query(collection(db, "bookings"), where("studentId", "==", auth.currentUser.uid));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setBookings(data);
+    };
+
+    if (activeTab === 'upcoming') {
+      fetchBookings();
+    }
+  }, [activeTab]);
+
+  const dummyTutors = [
+    {
+      id: 1,
+      name: 'Adam Johnson',
+      expertise: 'Web Development',
+      location: 'Kingdom of Bahrain',
+      price: 9,
+      rating: 5,
+      image: 'https://randomuser.me/api/portraits/men/32.jpg',
+    },
+    {
+      id: 2,
+      name: 'Abdul Malik',
+      expertise: 'Web Development',
+      location: 'Kingdom of Bahrain',
+      price: 9,
+      rating: 4.5,
+      image: 'https://randomuser.me/api/portraits/men/33.jpg',
+    },
+    {
+      id: 3,
+      name: 'Zachary Lee',
+      expertise: 'Web Development',
+      location: 'Kingdom of Bahrain',
+      price: 9,
+      rating: 4.7,
+      image: 'https://randomuser.me/api/portraits/men/34.jpg',
+    },
+  ];
+
   const renderContent = () => {
     switch (activeTab) {
       case 'upcoming':
-        return <p>No upcoming sessions.</p>;
+        return (
+          <>
+            <h2 className="section-title">Your Upcoming Bookings</h2>
+            {bookings.length === 0 ? (
+              <p>No bookings yet.</p>
+            ) : (
+              bookings.map((b) => (
+                <div
+                  key={b.id}
+                  style={{
+                    padding: '1rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    marginBottom: '1rem',
+                  }}
+                >
+                  <p><strong>Tutor:</strong> {b.tutorName}</p>
+                  <p><strong>Time:</strong> {new Date(b.time).toLocaleString()}</p>
+                  <p><strong>Status:</strong> {b.status}</p>
+                </div>
+              ))
+            )}
+          </>
+        );
+
       case 'tutors':
-        return <p>Loading tutors...</p>;
+        return (
+          <>
+            <h2 className="section-title">Tutors & Coaches List</h2>
+            <div className="tutor-list">
+              {dummyTutors.map((tutor) => (
+                <TutorCard key={tutor.id} tutor={tutor} />
+              ))}
+            </div>
+          </>
+        );
+
       case 'history':
         return <p>No past sessions.</p>;
+
       default:
         return null;
     }
@@ -47,7 +130,6 @@ export default function StudentDashboard() {
 
   return (
     <div style={{ padding: '1rem' }}>
-      {/* Tab navigation */}
       <div
         style={{
           position: 'relative',
@@ -57,11 +139,9 @@ export default function StudentDashboard() {
           background: 'var(--bg-tabs)',
           padding: '0.5rem',
           borderRadius: '999px',
-          marginBottom: '1rem',
-          userSelect: 'none',
+          marginBottom: '1.5rem',
         }}
       >
-        {/* Animated background for active tab */}
         <div
           ref={highlightRef}
           style={{
@@ -73,13 +153,9 @@ export default function StudentDashboard() {
             borderRadius: '999px',
             pointerEvents: 'none',
             zIndex: 0,
-            transition:
-              'width 0.5s cubic-bezier(0.4, 0, 0.2, 1), ' +
-              'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'width 0.4s, transform 0.4s',
           }}
         />
-
-        {/* Render each tab button */}
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -95,24 +171,14 @@ export default function StudentDashboard() {
                 activeTab === tab.id
                   ? 'var(--color-active-tab-text)'
                   : 'var(--color-tab-text)',
-              cursor: 'pointer',
               fontWeight: '600',
+              cursor: 'pointer',
               zIndex: 1,
-              transition: 'color 0.3s ease',
-            }}
-            onFocus={(e) => (e.target.style.outline = 'none')} // Remove outline on focus
-            onMouseEnter={(e) => {
-              const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg && activeTab !== tab.id) bg.style.opacity = '0.15'; // Show hover bg
-            }}
-            onMouseLeave={(e) => {
-              const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg) bg.style.opacity = '0'; // Hide hover bg
             }}
           >
             {tab.label}
             <span
-              className="hover-bg" // Hover effect layer
+              className="hover-bg"
               style={{
                 position: 'absolute',
                 top: 0,
@@ -131,14 +197,11 @@ export default function StudentDashboard() {
         ))}
       </div>
 
-      {/* Tab content area with fade animation */}
       <div
         key={activeTab}
-        className="tab-content show"
         style={{
           opacity: fade ? 1 : 0,
           transition: 'opacity 0.3s ease',
-          minHeight: '2em', // Prevent layout shift
         }}
       >
         {renderContent()}

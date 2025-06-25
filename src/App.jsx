@@ -4,6 +4,8 @@ import StudentDashboard from './pages/StudentDashboard';
 import TutorDashboard from './pages/TutorDashBoard';
 import LoginPage from './pages/Login/LoginPage';
 import SignUpPage from './pages/SignUp/SignUpPage';
+import HomePage from './pages/Home/HomePage';
+import TutorProfile from './pages/TutorProfile/TutorProfile';
 import ThemeToggle from './components/ThemeToggle';
 import ProtectedRoute from './components/ProtectedRoute'; 
 import './App.css';
@@ -12,7 +14,7 @@ function App() {
   return (
     <BrowserRouter>
       <div>
-         {/* Global nav bar (only contains theme toggle for now) */}
+        {/* Global nav bar (only contains theme toggle for now) */}
         <nav>
           <ThemeToggle />
         </nav>
@@ -24,39 +26,50 @@ function App() {
           {/* SignUp route */}
           <Route path="/signup" element={<SignUpPage />} />
 
-          {/* Protected Routes */}
+          {/* Home route (public tutor list) */}
+          <Route path="/home" element={<HomePage />} />
+
+          {/* Protected Tutor Profile route (student only) */}
+          <Route
+            path="/tutor/:id"
+            element={
+              <ProtectedRoute role="student">
+                <TutorProfile />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Admin Route */}
           <Route
             path="/admin"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute role="admin">
                 <AdminPage />
               </ProtectedRoute>
             }
           />
 
-          {/* Student dashboard, protected */}
+          {/* Student dashboard */}
           <Route
             path="/student"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute role="student">
                 <StudentDashboard />
               </ProtectedRoute>
             }
           />
 
-          {/* Tutor dashboard, protected */}
+          {/* Tutor dashboard */}
           <Route
             path="/tutor"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute role="tutor">
                 <TutorDashboard />
               </ProtectedRoute>
             }
           />
 
-          {/* Optional catch-all route for undefined URLs */}
+          {/* Optional catch-all */}
           {/* <Route path="*" element={<Navigate to="/" />} /> */}
         </Routes>
       </div>

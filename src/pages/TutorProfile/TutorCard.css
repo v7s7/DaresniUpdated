@@ -1,0 +1,86 @@
+.tutor-card-modern {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.tutor-card-modern:hover {
+  transform: translateY(-4px);
+}
+
+.avatar {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.tutor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.tutor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tutor-header h3 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.verified {
+  color: gold;
+  font-size: 1rem;
+}
+
+.rating {
+  font-weight: bold;
+  color: #ff9800;
+}
+
+.expertise {
+  color: #333;
+  font-weight: 500;
+}
+
+.location {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.8rem;
+}
+
+.price {
+  color: #a00028;
+  font-weight: bold;
+}
+
+button {
+  background-color: #1e3a8a;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #0f2a6e;
+}
