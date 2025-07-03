@@ -8,6 +8,9 @@ import HomePage from './pages/Home/HomePage';
 import TutorProfile from './pages/TutorProfile/TutorProfile';
 import ThemeToggle from './components/ThemeToggle';
 import ProtectedRoute from './components/ProtectedRoute'; 
+import StudentProfile from "./pages/StudentProfile/StudentProfile";
+
+
 import './App.css';
 
 function App() {
@@ -59,6 +62,12 @@ function App() {
             }
           />
 
+          <Route
+            path="/student/profile"
+            element={<StudentProfile />}
+            />
+
+
           {/* Tutor dashboard */}
           <Route
             path="/tutor"
@@ -69,6 +78,7 @@ function App() {
             }
           />
 
+          
           {/* Optional catch-all */}
           {/* <Route path="*" element={<Navigate to="/" />} /> */}
         </Routes>
