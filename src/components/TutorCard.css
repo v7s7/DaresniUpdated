@@ -1,3 +1,4 @@
+/* Existing code */
 .tutor-card-row {
   display: flex;
   align-items: center;
@@ -5,7 +6,7 @@
   border: 1px solid #eee;
   border-radius: 10px;
   padding: 0.75rem 1rem;
-  background-color: white;
+  background-color: white; /* Default card background color for light mode */
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   margin-bottom: 1rem;
   transition: transform 0.2s ease;
@@ -31,6 +32,7 @@
   font-size: 1rem;
   margin: 0;
   font-weight: 600;
+  color: #000; /* Default color for tutor name in light mode */
 }
 
 .verified {
@@ -40,8 +42,8 @@
 }
 
 .expertise, .location {
-  font-size: 0.85rem;
-  color: #555;
+  font-size: 1rem;
+  color: #555; /* Default color for sub-text in light mode */
   margin: 2px 0;
 }
 
@@ -62,7 +64,7 @@
 }
 
 .view-btn {
-  background-color: #1e3a8a;
+  background-color: #9B1B30;
   color: white;
   border: none;
   padding: 0.4rem 0.8rem;
@@ -74,4 +76,25 @@
 
 .view-btn:hover {
   background-color: #0f2a6e;
+}
+
+/* Dark Mode Adjustments */
+html.dark .tutor-card-row {
+  background-color: #3a3a3a; /* Darker card background for dark mode */
+}
+
+html.dark .tutor-details h3 {
+  color: #eaeaea; /* Lighter text color for tutor name in dark mode */
+}
+
+html.dark .expertise, html.dark .location {
+  color: #ccc; /* Lighter color for sub-text in dark mode */
+}
+
+html.dark .view-btn {
+  background-color: #D23B47; /* Lighter red for dark mode */
+}
+
+html.dark .view-btn:hover {
+  background-color: #f25a62; /* Hover effect for dark mode */
 }
