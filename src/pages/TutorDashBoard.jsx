@@ -1,19 +1,58 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useNavigate } from "react-router-dom";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { auth, db } from "../firebase";
+import RequestsTab from "../components/RequestsTab";
+import AvailabilityTab from "../components/AvailabilityTab";
+import HistoryTab from "../components/HistoryTab";
+import UpcomingTab from "../components/UpcomingTab";
 
 export default function TutorDashboard() {
-  // Tab definitions
   const tabs = [
-    { id: 'requests', label: 'Requests' },
-    { id: 'Upcoming', label: 'Upcoming' },
-    { id: 'history', label: 'History' },
+    { id: "requests", label: "Requests" },
+    { id: "upcoming", label: "Upcoming" },
+      { id: "availability", label: "Availability" }, // 👈 Add this
+    { id: "history", label: "History" },
   ];
 
-  const [activeTab, setActiveTab] = useState('requests'); // Track current tab
-  const [fade, setFade] = useState(true); // Handle fade animation
-  const buttonsRef = useRef({}); // Store tab button references
-  const highlightRef = useRef(); // Ref for the active tab highlight bar
+  const [activeTab, setActiveTab] = useState("requests");
+  const [fade, setFade] = useState(true);
+  const buttonsRef = useRef({});
+  const highlightRef = useRef();
+  const navigate = useNavigate();
 
-  // Move highlight bar to match active tab
+  const [user] = useAuthState(auth);
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!user) navigate("/");
+  }, [user, navigate]);
+
+  // Fetch upcoming sessions
+  useEffect(() => {
+    const fetchUpcomingSessions = async () => {
+      if (!user) return;
+
+      setLoading(true);
+      const q = query(
+        collection(db, "bookings"),
+        where("tutorId", "==", user.uid),
+        where("status", "==", "upcoming")
+      );
+
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setSessions(data);
+      setLoading(false);
+    };
+
+    fetchUpcomingSessions();
+  }, [user]);
+
+  // Tab highlight animation
   useEffect(() => {
     const activeBtn = buttonsRef.current[activeTab];
     if (activeBtn && highlightRef.current) {
@@ -24,119 +63,112 @@ export default function TutorDashboard() {
     }
   }, [activeTab]);
 
-  // Animate fade on tab change
   useEffect(() => {
-    setFade(false); // start fade out
-    const timeout = setTimeout(() => setFade(true), 150); // fade in after delay
+    setFade(false);
+    const timeout = setTimeout(() => setFade(true), 150);
     return () => clearTimeout(timeout);
   }, [activeTab]);
 
-  // Tab-specific content
   const renderContent = () => {
     switch (activeTab) {
-      case 'requests':
-        return <p>No new session requests.</p>;
-      case 'Upcoming':
-        return <p>Your upcoming schedule will appear here.</p>;
-      case 'history':
-        return <p>No past sessions available.</p>;
+      case "availability":
+  return <AvailabilityTab />
+
+      case "requests":
+        return <RequestsTab />
+        ;
+
+case "upcoming":
+  return <UpcomingTab />;
+        return (
+          <div className="card">
+            <h3>📅 Upcoming Sessions</h3>
+            {loading ? (
+              <p>Loading sessions...</p>
+            ) : sessions.length === 0 ? (
+              <p>No upcoming sessions yet.</p>
+            ) : (
+              <ul>
+                {sessions.map((session) => (
+                  <li key={session.id} style={{ marginBottom: "1rem" }}>
+                    <strong>{session.subject}</strong> with {session.studentName}
+                    <br />
+                    📅 {new Date(session.date.seconds * 1000).toLocaleString()}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+
+      case "history":
+  return <HistoryTab />;
+
+
       default:
         return null;
     }
   };
 
   return (
-    <div style={{ padding: '1rem' }}>
-      {/* Tab navigation container */}
+    <div style={{ padding: "1rem", maxWidth: "1000px", margin: "auto" }}>
+      <h2 style={{ marginBottom: "1rem" }}>Tutor Dashboard</h2>
+
+      {/* Tabs */}
       <div
         style={{
-          position: 'relative',
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '1rem',
-          background: 'var(--bg-tabs)',
-          padding: '0.5rem',
-          borderRadius: '999px',
-          marginBottom: '1rem',
-          userSelect: 'none',
+          position: "relative",
+          display: "flex",
+          justifyContent: "center",
+          gap: "1rem",
+          background: "#f2f4f7",
+          padding: "0.5rem",
+          borderRadius: "999px",
+          marginBottom: "1.5rem",
         }}
       >
-        {/* Animated highlight for active tab */}
         <div
           ref={highlightRef}
           style={{
-            position: 'absolute',
-            top: '0.5rem',
+            position: "absolute",
+            top: "0.5rem",
             left: 0,
-            height: '2.5rem',
-            backgroundColor: 'var(--bg-active-tab)',
-            borderRadius: '999px',
-            pointerEvents: 'none',
+            height: "2.5rem",
+            backgroundColor: "#e0e7ff",
+            borderRadius: "999px",
+            pointerEvents: "none",
             zIndex: 0,
-            transition:
-              'width 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: "width 0.4s, transform 0.4s",
           }}
         />
-
-        {/* Render each tab button */}
         {tabs.map((tab) => (
           <button
             key={tab.id}
             ref={(el) => (buttonsRef.current[tab.id] = el)}
             onClick={() => setActiveTab(tab.id)}
             style={{
-              position: 'relative',
-              padding: '0.5rem 1.5rem',
-              borderRadius: '999px',
-              border: 'none',
-              background: 'transparent',
-              color:
-                activeTab === tab.id
-                  ? 'var(--color-active-tab-text)'
-                  : 'var(--color-tab-text)',
-              cursor: 'pointer',
-              fontWeight: '600',
+              position: "relative",
+              padding: "0.5rem 1.5rem",
+              borderRadius: "999px",
+              border: "none",
+              background: "transparent",
+              color: activeTab === tab.id ? "#1e3a8a" : "#555",
+              fontWeight: "600",
+              cursor: "pointer",
               zIndex: 1,
-              transition: 'color 0.3s ease',
-            }}
-            onFocus={(e) => (e.target.style.outline = 'none')} // Remove blue outline
-            onMouseEnter={(e) => {
-              const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg && activeTab !== tab.id) bg.style.opacity = '0.15'; // Hover effect
-            }}
-            onMouseLeave={(e) => {
-              const bg = e.currentTarget.querySelector('.hover-bg');
-              if (bg) bg.style.opacity = '0'; // Reset hover
             }}
           >
             {tab.label}
-            <span
-              className="hover-bg" // Hover background layer
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                borderRadius: '999px',
-                backgroundColor: 'var(--bg-active-tab)',
-                opacity: 0,
-                transition: 'opacity 0.3s ease',
-                pointerEvents: 'none',
-                zIndex: -1,
-              }}
-            />
           </button>
         ))}
       </div>
 
-      {/* Tab content section with fade transition */}
+      {/* Content */}
       <div
         key={activeTab}
         style={{
           opacity: fade ? 1 : 0,
-          transition: 'opacity 0.3s ease',
-          minHeight: '2em',
+          transition: "opacity 0.3s ease",
         }}
       >
         {renderContent()}
