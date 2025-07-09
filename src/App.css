@@ -58,6 +58,56 @@ html.dark body {
   color: #eeeeee;
 }
 
+html.dark {
+   --bg-tabs: #222;
+  --bg-active-tab: #0a84ff;
+  --color-active-tab-text: #fff;
+  --color-tab-text: #ddd;
+  --bg-form: #1e1e1e;
+  --bg-input: #2c2c2c;
+  --color-form-text: #eee;
+  --color-placeholder: #aaa;
+  --bg-button: #9B1B30; /* Red color for dark mode */
+  --bg-button-hover: #7a1625; /* Darker red for hover in dark mode */
+  --color-button-text: white;
+  --border-color-dark: #555;
+}
+
+input, textarea {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color-light);
+  background-color: var(--bg-input);
+  color: var(--color-form-text);
+  width: 100%;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  transition: border 0.3s ease;
+}
+
+textarea {
+  resize: vertical;
+}
+
+html.dark input, html.dark textarea {
+  border: 1px solid var(--border-color-dark);
+}
+
+::placeholder {
+  color: var(--color-placeholder);
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #1e3a8a;
+  box-shadow: 0 0 4px rgba(30, 58, 138, 0.6);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.6); /* Focus outline */
+}
+
 /* Light mode */
 :root {
   /* --bg-tabs: #222;
@@ -74,7 +124,7 @@ html.dark body {
   --bg-google: #5b9dff;
   --bg-google-hover: #4285f4; */
 
-  --bg-tabs: #f3f3f3;
+   --bg-tabs: #f3f3f3;
   --bg-active-tab: #0073bb;
   --color-active-tab-text: white;
   --color-tab-text: black;
@@ -82,12 +132,16 @@ html.dark body {
   --bg-input: #f5f5f5;
   --color-form-text: #000;
   --color-placeholder: #888;
-  --bg-button: #e0e0e0;
-  --bg-button-hover: #cccccc;
-  --color-button-text: #000;
-  --bg-google: #3b76d6;
+  --bg-button: #9B1B30; /* Red color for light mode */
+  --bg-button-hover: #7a1625; /* Darker red for hover in light mode */
+  --color-button-text: white;
+  --border-color-light: #ccc;
+  /* --bg-google: #3b76d6;
   --bg-google-hover: #357ae8;
-
+  --bg-form: #ffffff;
+  --bg-input: #f5f5f5;
+  --color-form-text: #000;
+  --color-placeholder: #888; */
 }
 
 /* Dark mode */
@@ -123,6 +177,23 @@ html.dark body {
 
 button:hover .hover-bg {
   opacity: 0.2; /* translucent hover background */
+}
+
+button:hover {
+  background-color: var(--bg-button-hover); /* Darker red for hover effect */
+}
+
+button {
+  padding: 0.6rem 1.15rem !important; /* Ensure padding applies with !important */
+  background-color: var(--bg-button); /* Red color for light or dark mode */
+  color: var(--color-button-text);
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  width: auto; /* Ensure button width adjusts according to content */
+  text-align: center; /* Center text inside the button */
 }
 
 .tab-content {

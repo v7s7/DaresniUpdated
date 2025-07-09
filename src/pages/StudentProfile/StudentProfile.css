@@ -1,38 +1,28 @@
 .student-profile-container {
   display: flex;
-  padding: 2rem;
+  flex-direction: column;
   gap: 2rem;
-  color: var(--text-tab-item);
-  background-color: var(--bg-tab-item);
-  min-height: 100vh;
+  padding: 2rem;
+  max-width: 700px;
+  margin: auto;
 }
 
-.student-profile-sidebar {
-  min-width: 200px;
-  background: var(--bg-tabs);
-  border-radius: 12px;
-  padding: 1rem;
-  font-weight: bold;
+.student-profile-header {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
 }
 
-.student-profile-sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin-top: 1rem;
+.student-profile-header img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
 }
 
-.student-profile-sidebar li {
-  margin-bottom: 0.75rem;
-  cursor: pointer;
-  color: var(--color-tab-text);
-}
-
-.student-profile-sidebar li:hover {
-  color: var(--color-active-tab-text);
-}
-
-.student-profile-content {
-  flex: 1;
+.student-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .student-profile-form {
@@ -45,28 +35,22 @@
 .student-profile-form textarea {
   padding: 0.5rem;
   border-radius: 6px;
-  border: 1px solid var(--border-tab-item);
-  background: var(--bg-tab-item);
-  color: var(--text-tab-item);
+  border: 1px solid #e0e0e0;
+  background: white;
+  color: #333;
 }
 
 .student-profile-form button {
-  padding: 0.6rem 1rem;
-  background-color: var(--bg-active-tab);
-  color: var(--color-active-tab-text);
-  border: none;
+  padding: 0.75rem 1.5rem;
+  background-color: #1e3a8a;
+  color: white;
   border-radius: 8px;
+  border: none;
   cursor: pointer;
   font-weight: 600;
   transition: background-color 0.3s ease;
 }
 
 .student-profile-form button:hover {
-  filter: brightness(1.05);
-}
-
-.profile-loading {
-  padding: 2rem;
-  text-align: center;
-  color: var(--text-tab-item);
+  background-color: #0f2a6e;
 }
