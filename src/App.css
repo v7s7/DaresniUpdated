@@ -136,12 +136,12 @@ button:focus {
   --bg-button-hover: #7a1625; /* Darker red for hover in light mode */
   --color-button-text: white;
   --border-color-light: #ccc;
-  /* --bg-google: #3b76d6;
+  --bg-google: #3b76d6;
   --bg-google-hover: #357ae8;
   --bg-form: #ffffff;
   --bg-input: #f5f5f5;
   --color-form-text: #000;
-  --color-placeholder: #888; */
+  --color-placeholder: #888;
 }
 
 /* Dark mode */
