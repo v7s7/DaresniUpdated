@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import TutorCard from '../components/TutorCard';
 import '../pages/Home/HomePage.css';
@@ -15,7 +15,6 @@ export default function StudentDashboard() {
   const [fade, setFade] = useState(true);
   const buttonsRef = useRef({});
   const highlightRef = useRef();
-
   const [bookings, setBookings] = useState([]);
 
   // UI animation
@@ -35,20 +34,68 @@ export default function StudentDashboard() {
     return () => clearTimeout(timeout);
   }, [activeTab]);
 
-  // Load bookings
-  useEffect(() => {
-    const fetchBookings = async () => {
-      if (!auth.currentUser) return;
-      const q = query(collection(db, "bookings"), where("studentId", "==", auth.currentUser.uid));
-      const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setBookings(data);
-    };
+  // Fetch bookings
+  const fetchBookings = async () => {
+    if (!auth.currentUser) return;
+    const q = query(
+      collection(db, "bookings"),
+      where("studentId", "==", auth.currentUser.uid)
+    );
+    const snapshot = await getDocs(q);
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setBookings(data);
+  };
 
+  useEffect(() => {
     if (activeTab === 'upcoming') {
       fetchBookings();
     }
   }, [activeTab]);
+
+  // Cancel booking
+  const handleCancelBooking = async (booking) => {
+    const confirmCancel = window.confirm(
+      `Are you sure you want to cancel the booking with ${booking.tutorName} on ${booking.date} at ${booking.time}?`
+    );
+    if (!confirmCancel) return;
+
+    try {
+      // Restore the cancelled slot in availabilities
+      const availabilityQuery = query(
+        collection(db, "availabilities"),
+        where("tutorId", "==", booking.tutorId),
+        where("date", "==", booking.date)
+      );
+
+      const snapshot = await getDocs(availabilityQuery);
+      if (!snapshot.empty) {
+        const docRef = snapshot.docs[0].ref;
+        const currentSlots = snapshot.docs[0].data().slots || [];
+        // Add the slot back if it's not already there
+        if (!currentSlots.includes(booking.time)) {
+          const updatedSlots = [...currentSlots, booking.time].sort();
+          await updateDoc(docRef, { slots: updatedSlots });
+        }
+      } else {
+        // Create a new availability document if none exists
+        await updateDoc(doc(db, "availabilities", `${booking.tutorId}_${booking.date}`), {
+          tutorId: booking.tutorId,
+          date: booking.date,
+          slots: [booking.time],
+        });
+      }
+
+      // Delete the booking from Firestore
+      await deleteDoc(doc(db, "bookings", booking.id));
+
+      // Update local state
+      setBookings(prev => prev.filter(b => b.id !== booking.id));
+      alert("Booking cancelled successfully.");
+    } catch (err) {
+      console.error("Error cancelling booking:", err);
+      alert("Failed to cancel booking. Please try again.");
+    }
+  };
 
   const dummyTutors = [
     {
@@ -100,8 +147,25 @@ export default function StudentDashboard() {
                   }}
                 >
                   <p><strong>Tutor:</strong> {b.tutorName}</p>
-                  <p><strong>Time:</strong> {new Date(b.time).toLocaleString()}</p>
+                  <p><strong>Subject:</strong> {b.subject || 'N/A'}</p>
+                  <p>
+                    <strong>Date & Time:</strong> {b.date} at {b.time}
+                  </p>
                   <p><strong>Status:</strong> {b.status}</p>
+                  <button
+                    onClick={() => handleCancelBooking(b)}
+                    style={{
+                      marginTop: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#b91c1c',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Cancel Booking
+                  </button>
                 </div>
               ))
             )}

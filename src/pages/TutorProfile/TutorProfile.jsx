@@ -13,6 +13,7 @@ const TutorProfile = () => {
   const [availabilities, setAvailabilities] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedSlot, setSelectedSlot] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
   const [subjects, setSubjects] = useState([]);
 
   // Fetch availabilities
@@ -51,6 +52,7 @@ const TutorProfile = () => {
 
   const handleBooking = async () => {
     if (!user) return alert('You must be logged in to book a tutor.');
+    if (!selectedSubject) return alert('Select a subject.');
     if (!selectedDate || !selectedSlot) return alert('Select a date and slot.');
 
     try {
@@ -60,6 +62,7 @@ const TutorProfile = () => {
         studentName: user.email,
         tutorId: tutor.id,
         tutorName: tutor.name,
+        subject: selectedSubject,
         date: selectedDate,
         time: selectedSlot,
         status: 'pending',
@@ -82,6 +85,7 @@ const TutorProfile = () => {
 
       alert(`Booking request sent to ${tutor.name}!`);
       setSelectedSlot('');
+      setSelectedSubject('');
     } catch (err) {
       console.error('Booking error:', err);
       alert('Failed to book. Try again later.');
@@ -134,35 +138,55 @@ const TutorProfile = () => {
         )}
       </div>
 
-      {/* Availability Booking Section */}
+      {/* Booking Section */}
       <div style={{ marginTop: '2rem' }}>
-        <h3>Available Slots</h3>
+        <h3>Book a Session</h3>
+
+        {/* Select Subject */}
+        <div style={{ marginBottom: '1rem' }}>
+          <label>Subject:</label>
+          <select
+            value={selectedSubject}
+            onChange={(e) => setSelectedSubject(e.target.value)}
+          >
+            <option value="">Select Subject</option>
+            {subjects.map((s, i) => (
+              <option key={i} value={s.name}>
+                {s.name} - BHD {s.pricePerHour}/hour
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Date & Time Selection */}
         {availableDates.length === 0 ? (
           <p>No availability provided by this tutor.</p>
         ) : (
           <>
-            <label>Date:</label>
-            <select
-              value={selectedDate}
-              onChange={e => {
-                setSelectedDate(e.target.value);
-                setSelectedSlot('');
-              }}
-            >
-              <option value="">Select Date</option>
-              {availableDates.map(d => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+            <div style={{ marginBottom: '1rem' }}>
+              <label>Date:</label>
+              <select
+                value={selectedDate}
+                onChange={(e) => {
+                  setSelectedDate(e.target.value);
+                  setSelectedSlot('');
+                }}
+              >
+                <option value="">Select Date</option>
+                {availableDates.map(d => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {selectedDate && (
-              <div style={{ marginTop: '1rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
                 <label>Time Slot:</label>
                 <select
                   value={selectedSlot}
-                  onChange={e => setSelectedSlot(e.target.value)}
+                  onChange={(e) => setSelectedSlot(e.target.value)}
                 >
                   <option value="">Select Slot</option>
                   {availabilities
@@ -181,15 +205,17 @@ const TutorProfile = () => {
 
       <button
         onClick={handleBooking}
-        disabled={!selectedSlot}
+        disabled={!selectedSlot || !selectedSubject}
         style={{
           marginTop: '2rem',
-          backgroundColor: selectedSlot ? '#1e3a8a' : '#999',
+          backgroundColor:
+            selectedSlot && selectedSubject ? '#1e3a8a' : '#999',
           color: 'white',
           padding: '0.75rem 1.5rem',
           borderRadius: '10px',
           border: 'none',
-          cursor: selectedSlot ? 'pointer' : 'not-allowed',
+          cursor:
+            selectedSlot && selectedSubject ? 'pointer' : 'not-allowed',
         }}
       >
         Book Now
