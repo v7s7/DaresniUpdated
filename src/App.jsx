@@ -6,10 +6,10 @@ import LoginPage from './pages/Login/LoginPage';
 import SignUpPage from './pages/SignUp/SignUpPage';
 import HomePage from './pages/Home/HomePage';
 import TutorProfile from './pages/TutorProfile/TutorProfile';
+import TutorProfilePage from './pages/TutorProfile/TutorProfilePage';
 import ThemeToggle from './components/ThemeToggle';
 import ProtectedRoute from './components/ProtectedRoute'; 
 import StudentProfile from "./pages/StudentProfile/StudentProfile";
-
 
 import './App.css';
 
@@ -42,6 +42,16 @@ function App() {
             }
           />
 
+          {/* Tutor's own profile page */}
+          <Route
+            path="/tutor/profile"
+            element={
+              <ProtectedRoute role="tutor">
+                <TutorProfilePage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Admin Route */}
           <Route
             path="/admin"
@@ -65,8 +75,7 @@ function App() {
           <Route
             path="/student/profile"
             element={<StudentProfile />}
-            />
-
+          />
 
           {/* Tutor dashboard */}
           <Route
@@ -78,7 +87,6 @@ function App() {
             }
           />
 
-          
           {/* Optional catch-all */}
           {/* <Route path="*" element={<Navigate to="/" />} /> */}
         </Routes>

@@ -48,6 +48,15 @@ const TutorProfile = () => {
     fetchSubjects();
   }, [tutor]);
 
+  // Auto-select first options if autoBook is true
+  useEffect(() => {
+    if (state?.autoBook && subjects.length > 0 && availabilities.length > 0) {
+      setSelectedSubject(subjects[0].name);
+      setSelectedDate(availabilities[0].date);
+      setSelectedSlot(availabilities[0].slots[0]);
+    }
+  }, [state, subjects, availabilities]);
+
   if (!tutor) return <p>Sorry, tutor not found.</p>;
 
   const handleBooking = async () => {

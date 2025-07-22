@@ -16,6 +16,21 @@ const SignUpPage = () => {
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
+  // Save user profile with default fields
+  const saveUserProfile = async (uid, email, userRole) => {
+    const defaultProfile = {
+      email,
+      role: userRole,
+      name: userRole === 'tutor' ? 'New Tutor' : '',
+      expertise: userRole === 'tutor' ? 'Not specified' : '',
+      price: userRole === 'tutor' ? 0 : null,
+      location: '',
+      rating: userRole === 'tutor' ? 0 : null,
+      image: '',
+    };
+    await setDoc(doc(db, 'users', uid), defaultProfile);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -33,11 +48,7 @@ const SignUpPage = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      await setDoc(doc(db, 'users', user.uid), {
-        email: user.email,
-        role: role
-      });
-
+      await saveUserProfile(user.uid, user.email, role);
       navigate(role === 'student' ? '/student' : '/tutor');
     } catch (err) {
       setError(err.message);
@@ -70,11 +81,7 @@ const SignUpPage = () => {
     }
 
     try {
-      await setDoc(doc(db, 'users', pendingGoogleUser.uid), {
-        email: pendingGoogleUser.email,
-        role: selectedRole,
-      });
-
+      await saveUserProfile(pendingGoogleUser.uid, pendingGoogleUser.email, selectedRole);
       navigate(selectedRole === 'student' ? '/student' : '/tutor');
     } catch (err) {
       setError(err.message);

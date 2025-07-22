@@ -12,8 +12,7 @@ export default function TutorDashboard() {
   const tabs = [
     { id: "requests", label: "Requests" },
     { id: "upcoming", label: "Upcoming" },
-    { id: "subjects", label: "Subjects" },
-      { id: "availability", label: "Availability" }, // 👈 Add this
+    { id: "availability", label: "Availability" },
     { id: "history", label: "History" },
   ];
 
@@ -45,7 +44,7 @@ export default function TutorDashboard() {
       );
 
       const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setSessions(data);
       setLoading(false);
     };
@@ -73,42 +72,13 @@ export default function TutorDashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case "availability":
-  return <AvailabilityTab />
-  case "subjects":
-  return <SubjectsTab />;
-
-
+        return <AvailabilityTab />;
       case "requests":
-        return <RequestsTab />
-        ;
-
-case "upcoming":
-  return <UpcomingTab />;
-        return (
-          <div className="card">
-            <h3>📅 Upcoming Sessions</h3>
-            {loading ? (
-              <p>Loading sessions...</p>
-            ) : sessions.length === 0 ? (
-              <p>No upcoming sessions yet.</p>
-            ) : (
-              <ul>
-                {sessions.map((session) => (
-                  <li key={session.id} style={{ marginBottom: "1rem" }}>
-                    <strong>{session.subject}</strong> with {session.studentName}
-                    <br />
-                    📅 {new Date(session.date.seconds * 1000).toLocaleString()}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        );
-
+        return <RequestsTab />;
+      case "upcoming":
+        return <UpcomingTab />;
       case "history":
-  return <HistoryTab />;
-
-
+        return <HistoryTab />;
       default:
         return null;
     }
@@ -116,7 +86,29 @@ case "upcoming":
 
   return (
     <div style={{ padding: "1rem", maxWidth: "1000px", margin: "auto" }}>
-      <h2 style={{ marginBottom: "1rem" }}>Tutor Dashboard</h2>
+      {/* Dashboard Header */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h2 style={{ marginBottom: "1rem" }}>Tutor Dashboard</h2>
+        <button
+          onClick={() => navigate("/tutor/profile")}
+          style={{
+            backgroundColor: "#1e3a8a",
+            color: "white",
+            padding: "0.5rem 1rem",
+            borderRadius: "6px",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          My Profile
+        </button>
+      </div>
 
       {/* Tabs */}
       <div

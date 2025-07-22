@@ -9,21 +9,51 @@ const TutorCard = ({ tutor }) => {
     navigate(`/tutor/${tutor.id}`, { state: { tutor } });
   };
 
+  const handleBookNow = () => {
+    navigate(`/tutor/${tutor.id}`, { state: { tutor, autoBook: true } });
+  };
+
   return (
     <div className="tutor-card-row">
-      <img src={tutor.image} alt={tutor.name} className="avatar-sm" />
+      {/* Tutor Image */}
+      <img
+        src={tutor.image || "https://via.placeholder.com/80"}
+        alt={tutor.name || "Tutor"}
+        className="avatar-sm"
+      />
+
+      {/* Tutor Info */}
       <div className="tutor-details">
-        <h3>{tutor.name} <span className="verified">✔️</span></h3>
-        <p className="expertise">{tutor.expertise}</p>
-        <p className="location">📍 {tutor.location}</p>
+        <h3>
+          {tutor.name || "Unnamed Tutor"}{" "}
+          {tutor.verified && <span className="verified">✔️</span>}
+        </h3>
+        <p className="expertise">{tutor.expertise || "Expertise not set"}</p>
+        {tutor.bio && (
+          <p className="bio-preview">
+            {tutor.bio.length > 50 ? tutor.bio.substring(0, 50) + "..." : tutor.bio}
+          </p>
+        )}
+        {tutor.location && <p className="location">📍 {tutor.location}</p>}
       </div>
+
+      {/* Price & Rating */}
       <div className="price-rating">
-        <p className="price">BHD {tutor.price}</p>
-        <p className="stars">⭐ {tutor.rating}</p>
+        <p className="price">
+          {tutor.price ? `BHD ${tutor.price}/hr` : "Price not set"}
+        </p>
+        <p className="stars">⭐ {tutor.rating || "N/A"}</p>
       </div>
-      <button className="view-btn" onClick={goToProfile}>
-        View Profile
-      </button>
+
+      {/* Buttons */}
+      <div className="tutor-actions">
+        <button className="view-btn" onClick={goToProfile}>
+          View Profile
+        </button>
+        <button className="book-btn" onClick={handleBookNow}>
+          Book Now
+        </button>
+      </div>
     </div>
   );
 };

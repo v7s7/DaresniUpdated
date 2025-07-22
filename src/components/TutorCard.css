@@ -1,99 +1,200 @@
-.tutor-card-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid #eee;
+/* ========== GLOBAL ========== */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: Arial, sans-serif;
+  background-color: white;
+  color: black;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-y: auto;
+}
+
+#root {
+  width: 100%;
+  padding: 1rem;
+  margin: 0 auto;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 1rem;
+  font-weight: bold;
+  color: inherit;
+}
+
+/* ========== CARDS ========== */
+.card {
+  padding: 1.5rem;
+  background: var(--bg-form);
   border-radius: 10px;
-  padding: 0.75rem 1rem;
-  background-color: white; /* Default card background color for light mode */
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  margin-bottom: 1rem;
-  transition: transform 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+}
+
+/* ========== BUTTONS ========== */
+button {
+  padding: 0.6rem 1.2rem;
+  background-color: var(--bg-button);
+  color: var(--color-button-text);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  width: auto;
+  text-align: center;
+}
+
+button:hover {
+  background-color: var(--bg-button-hover);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.6);
+}
+
+button .hover-bg {
+  opacity: 0.2;
+}
+
+/* ========== TUTOR LIST ========== */
+.tutor-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  justify-items: center;
+  align-items: start;
+  padding: 1rem 0 3rem;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.tutor-card-row {
+  width: 100%;
+  max-width: 320px;
+  min-height: 280px;
+  background: var(--bg-form);
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .tutor-card-row:hover {
-  transform: scale(1.01);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .avatar-sm {
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 1rem;
-}
-
-.tutor-details {
-  flex: 1;
+  margin-bottom: 0.8rem;
 }
 
 .tutor-details h3 {
-  font-size: 1rem;
   margin: 0;
-  font-weight: 600;
-  color: #000; /* Default color for tutor name in light mode */
-}
-
-.verified {
-  font-size: 0.9rem;
-  color: gold;
-  margin-left: 5px;
-}
-
-.expertise, .location {
-  font-size: 1rem;
-  color: #555; /* Default color for sub-text in light mode */
-  margin: 2px 0;
+  font-size: 1.2rem;
 }
 
 .price-rating {
-  text-align: right;
-  margin-right: 1rem;
-}
-
-.price {
-  color: #a00028;
-  font-weight: 600;
+  margin: 0.5rem 0;
   font-size: 0.95rem;
 }
 
-.stars {
-  font-size: 0.85rem;
-  color: #ff9800;
-}
-
 .view-btn {
-  background-color: #9b0d28;
-  color: white;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  white-space: nowrap;
+  margin-top: auto;
+  padding: 0.5rem 1rem;
+  background: var(--bg-button);
+  color: var(--color-button-text);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
 }
 
 .view-btn:hover {
-  background-color: #0f2a6e;
+  background: var(--bg-button-hover);
 }
 
-/* Dark Mode Adjustments */
-html.dark .tutor-card-row {
-  background-color: #3a3a3a; /* Darker card background for dark mode */
+/* ========== INPUTS ========== */
+input, textarea, select {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color-light);
+  background-color: var(--bg-input);
+  color: var(--color-form-text);
+  width: 100%;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  transition: border 0.3s ease;
+  box-sizing: border-box;
 }
 
-html.dark .tutor-details h3 {
-  color: #eaeaea; /* Lighter text color for tutor name in dark mode */
+textarea {
+  resize: vertical;
 }
 
-html.dark .expertise, html.dark .location {
-  color: #ccc; /* Lighter color for sub-text in dark mode */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #1e3a8a;
+  box-shadow: 0 0 4px rgba(30, 58, 138, 0.6);
 }
 
-html.dark .view-btn {
-  background-color: #D23B47; /* Lighter red for dark mode */
+/* ========== DARK MODE ========== */
+html.dark body {
+  background-color: #121212;
+  color: #eeeeee;
 }
 
-html.dark .view-btn:hover {
-  background-color: #f25a62; /* Hover effect for dark mode */
+:root {
+  --bg-tabs: #f3f3f3;
+  --bg-active-tab: #0073bb;
+  --color-active-tab-text: white;
+  --color-tab-text: black;
+  --bg-form: #ffffff;
+  --bg-input: #f5f5f5;
+  --color-form-text: #000;
+  --color-placeholder: #888;
+  --bg-button: #9B1B30;
+  --bg-button-hover: #7a1625;
+  --color-button-text: white;
+  --border-color-light: #ccc;
+  --bg-google: #3b76d6;
+  --bg-google-hover: #357ae8;
+}
+
+html.dark {
+  --bg-tabs: #222;
+  --bg-active-tab: #0a84ff;
+  --color-active-tab-text: #fff;
+  --color-tab-text: #ddd;
+  --bg-form: #1e1e1e;
+  --bg-input: #2c2c2c;
+  --color-form-text: #eee;
+  --color-placeholder: #aaa;
+  --bg-button: #333;
+  --bg-button-hover: #555;
+  --color-button-text: #fff;
+  --bg-google: #5b9dff;
+  --bg-google-hover: #4285f4;
+}
+
+/* ========== ANIMATIONS ========== */
+.tab-content {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.tab-content.show {
+  opacity: 1;
+  transform: translateY(0);
 }

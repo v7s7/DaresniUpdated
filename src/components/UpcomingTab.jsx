@@ -5,7 +5,7 @@ import {
   collection,
   query,
   where,
-  getDocs,
+  onSnapshot,
   updateDoc,
   doc,
 } from "firebase/firestore";
@@ -15,31 +15,33 @@ export default function UpcomingTab() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchSessions = async () => {
+  useEffect(() => {
     if (!user) return;
+
     setLoading(true);
     const q = query(
       collection(db, "bookings"),
       where("tutorId", "==", user.uid),
       where("status", "==", "upcoming")
     );
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setSessions(data);
-    setLoading(false);
-  };
 
-  useEffect(() => {
-    fetchSessions();
+    // Real-time listener
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setSessions(data);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, [user]);
 
   const updateStatus = async (id, newStatus) => {
     const bookingRef = doc(db, "bookings", id);
     await updateDoc(bookingRef, { status: newStatus });
-    fetchSessions(); // Refresh list
+    // No need to call fetchSessions – real-time listener will handle updates
   };
 
   if (loading) return <p>Loading upcoming sessions...</p>;
@@ -52,9 +54,11 @@ export default function UpcomingTab() {
       <ul>
         {sessions.map((session) => (
           <li key={session.id} style={{ marginBottom: "1rem" }}>
-            <strong>{session.subject}</strong> with {session.studentName}
+            <strong>{session.subject || "No Subject"}</strong> with {session.studentName}
             <br />
-            📅 {new Date(session.date.seconds * 1000).toLocaleString()}
+            📅 {session.date
+              ? new Date(session.date.seconds * 1000).toLocaleString()
+              : "No Date"}
             <br />
             <button
               onClick={() => updateStatus(session.id, "completed")}
