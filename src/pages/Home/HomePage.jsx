@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import TutorCard from '../../components/TutorCard';
 import './HomePage.css';
 
@@ -33,6 +34,12 @@ const dummyTutors = [
 ];
 
 export default function HomePage() {
+  const navigate = useNavigate();
+
+  const handleViewProfile = (tutor) => {
+    navigate(`/tutor/${tutor.id}`, { state: { tutor } });
+  };
+
   return (
     <div className="home-container">
       <header className="header">
@@ -48,8 +55,11 @@ export default function HomePage() {
 
       <div className="tutor-list">
         {dummyTutors.map((tutor) => (
-<TutorCard key={tutor.id} tutor={tutor} onViewProfile={() => handleViewProfile(tutor)} />
-          
+          <TutorCard
+            key={tutor.id}
+            tutor={tutor}
+            onViewProfile={() => handleViewProfile(tutor)}
+          />
         ))}
       </div>
     </div>

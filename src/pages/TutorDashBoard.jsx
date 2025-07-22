@@ -12,6 +12,7 @@ export default function TutorDashboard() {
   const tabs = [
     { id: "requests", label: "Requests" },
     { id: "upcoming", label: "Upcoming" },
+    { id: "subjects", label: "Subjects" },
       { id: "availability", label: "Availability" }, // 👈 Add this
     { id: "history", label: "History" },
   ];
@@ -73,6 +74,9 @@ export default function TutorDashboard() {
     switch (activeTab) {
       case "availability":
   return <AvailabilityTab />
+  case "subjects":
+  return <SubjectsTab />;
+
 
       case "requests":
         return <RequestsTab />
