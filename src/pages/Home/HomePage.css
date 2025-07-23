@@ -56,8 +56,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.5rem;
-  overflow-y: auto;
+  overflow-x: hidden;
   padding-bottom: 2rem;
+  box-sizing: border-box;
 }
 
 /* Tutor Card Hover Effect */
@@ -65,6 +66,10 @@
   background: white;
   border-radius: 10px;
   padding: 1rem;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }

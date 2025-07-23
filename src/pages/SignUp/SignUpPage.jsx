@@ -129,10 +129,16 @@ const SignUpPage = () => {
             </select>
             <button type="submit">Sign Up</button>
             {error && <p className="error">{error}</p>}
-          </form>
           <button onClick={handleGoogleSignIn} className="google-btn">
+            <img
+              src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/google-logo.5867462c.svg"
+              alt="Google"
+              className="google-icon"
+            />
             Sign up with Google
           </button>
+                    </form>
+
           <p>
             Already have an account? <Link to="/">Login</Link>
           </p>

@@ -127,7 +127,6 @@ const LoginPage = () => {
             />
             <button type="submit">Login</button>
             {error && <p className="error">{error}</p>}
-          </form>
 
           {/* Google sign in button */}
           <button onClick={handleGoogleSignIn} className="google-btn">
@@ -138,6 +137,7 @@ const LoginPage = () => {
             />
             Sign in with Google
           </button>
+          </form>
 
           {/* Link to sign up page */}
           <p>

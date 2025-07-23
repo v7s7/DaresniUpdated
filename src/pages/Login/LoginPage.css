@@ -47,7 +47,6 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  width: 100%; /* Ensure button fills the form width */
 }
 
 .login-form button:hover {
@@ -60,17 +59,7 @@
   text-align: center;
 }
 
-.google-btn {
-  margin-top: 10px;
-  padding: 10px;
-  width: 100%; /* Ensure Google button takes full width */
-  background-color: var(--bg-google);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1em;
-}
+
 
 .google-btn:hover {
   background-color: var(--bg-google-hover);
@@ -95,6 +84,7 @@
   width: 100%;
   max-width: 400px;
   box-sizing: border-box;
+  
 }
 
 
@@ -122,3 +112,13 @@ html, body {
   z-index: 100; /* Ensure the button stays on top */
 }
 
+.google-btn {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: var(--bg-google) !important;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
