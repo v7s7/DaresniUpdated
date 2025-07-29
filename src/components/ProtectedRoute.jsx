@@ -1,34 +1,20 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children, role, bypassAuth }) => {
+const ProtectedRoute = ({ children, role }) => {
   const { user, role: userRole, loading } = useAuth();
 
-  console.log("ProtectedRoute Debug:", {
-    user,
-    userRole,
-    loading,
-    requiredRole: role,
-  });
+  if (loading) return <p>Loading...</p>;
 
-  if (loading) {
-    return <p>Loading authentication...</p>; // Wait for Firebase auth check
-  }
+  // Not logged in
+  if (!user) return <Navigate to="/" replace />;
 
-  if (bypassAuth) {
-    return children;
-  }
-
-  if (!user) {
-    console.warn("No authenticated user, redirecting to login...");
-    return <Navigate to="/" replace />;
-  }
-
-  // TEMPORARY BYPASS FOR ROLE CHECK
+  // Logged in but role mismatch
   if (role && userRole !== role) {
-    console.warn(`Role mismatch: userRole=${userRole}, expectedRole=${role}`);
-    // return <p>Access Denied: You do not have the right permissions.</p>;
-    return children; // TEMP bypass for testing
+    if (userRole === 'student') return <Navigate to="/student" replace />;
+    if (userRole === 'tutor') return <Navigate to="/tutor" replace />;
+    if (userRole === 'admin') return <Navigate to="/admin" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;
