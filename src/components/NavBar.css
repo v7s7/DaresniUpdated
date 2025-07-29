@@ -1,0 +1,28 @@
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  background-color: var(--card-bg); 
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.navbar button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.navbar button.active {
+  background-color: var(--button);
+  color: white;
+}
+.navbar button:hover {
+  background-color: var(--button-hover);
+}

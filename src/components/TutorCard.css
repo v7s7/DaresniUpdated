@@ -218,7 +218,6 @@ html.dark {
   --bg-google-hover: #4285f4;
 }
 
-/* ========== ANIMATIONS ========== */
 .tab-content {
   opacity: 0;
   transform: translateY(10px);
@@ -227,4 +226,38 @@ html.dark {
 .tab-content.show {
   opacity: 1;
   transform: translateY(0);
+}
+
+.tutor-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  width: 100%;
+  margin-top: auto;
+}
+
+.tutor-actions button {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Style for View button */
+.view-btn {
+  background-color: #9B1B30;
+  color: white;
+}
+
+/* Style for Book button */
+.book-btn {
+  background-color: #9B1B30;
+  color: white;
+}
+
+.tutor-actions button:hover {
+  background-color: #7a1625; 
 }

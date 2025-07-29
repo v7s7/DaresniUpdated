@@ -1,7 +1,12 @@
+* {
+  outline: 1px solid red !important; /* see all element boundaries */
+}
+
+
 #root {
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0;
+  padding: 0;
   text-align: center;
 }
 
@@ -53,12 +58,12 @@ body {
 }
 
 /* Dark mode applied via class on <html> */
-html.dark body {
+/* html.dark body {
   background-color: #121212;
   color: #eeeeee;
-}
+} */
 
-html.dark {
+/* html.dark {
    --bg-tabs: #222;
   --bg-active-tab: #0a84ff;
   --color-active-tab-text: #fff;
@@ -67,11 +72,11 @@ html.dark {
   --bg-input: #2c2c2c;
   --color-form-text: #eee;
   --color-placeholder: #aaa;
-  --bg-button: #9B1B30; /* Red color for dark mode */
-  --bg-button-hover: #7a1625; /* Darker red for hover in dark mode */
+  --bg-button: #9B1B30; 
+  --bg-button-hover: #7a1625; 
   --color-button-text: white;
   --border-color-dark: #555;
-}
+} */
 
 input, textarea {
   padding: 0.6rem;
@@ -89,9 +94,9 @@ textarea {
   resize: vertical;
 }
 
-html.dark input, html.dark textarea {
+/* html.dark input, html.dark textarea {
   border: 1px solid var(--border-color-dark);
-}
+} */
 
 ::placeholder {
   color: var(--color-placeholder);
@@ -160,7 +165,7 @@ button:focus {
   --bg-google: #3b76d6;
   --bg-google-hover: #357ae8; */
 
-  --bg-tabs: #222;
+  /* --bg-tabs: #222;
   --bg-active-tab: #0a84ff;
   --color-active-tab-text: #fff;
   --color-tab-text: #ddd;
@@ -173,7 +178,7 @@ button:focus {
   --color-button-text: #fff;
   --bg-google: #5b9dff;
   --bg-google-hover: #4285f4;
-}
+} */
 
 button:hover .hover-bg {
   opacity: 0.2; /* translucent hover background */
@@ -204,4 +209,29 @@ button {
 .tab-content.show {
   opacity: 1;
   transform: translateY(0);
+}
+}
+
+/* Reset margin and padding */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: white; /* Or your desired background */
+  box-sizing: border-box;
+  overflow-x: auto; /* Prevent horizontal scroll */
+}
+
+html.dark body {
+  background-color: #121212;
+  color: #eeeeee;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body, html, #root {
+  height: auto !important;
+  overflow-y: auto !important;
+  min-height: 100vh;
 }

@@ -153,7 +153,7 @@ export default function StudentDashboard() {
   return (
     <div className="dashboard-container">
       {/* Tab Navigation */}
-      <div className="tab-nav">
+      {/* <div className="tab-nav">
         <div ref={highlightRef} className="tab-highlight" />
         {tabs.map((tab) => (
           <button
@@ -165,7 +165,7 @@ export default function StudentDashboard() {
             {tab.label}
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* Tab Content */}
       <div key={activeTab} className={`tab-content ${fade ? 'show' : ''}`}>
