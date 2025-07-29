@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import TutorCard from '../components/TutorCard';
+import HistoryTab from '../components/HistoryTab';  // Import HistoryTab
 import '../pages/Home/HomePage.css';
 
 export default function StudentDashboard() {
@@ -11,7 +12,7 @@ export default function StudentDashboard() {
     { id: 'history', label: 'History' },
   ];
 
-  const [activeTab, setActiveTab] = useState('tutors');
+  const [activeTab, setActiveTab] = useState('upcoming');
   const [fade, setFade] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const tutorsPerPage = 6;
@@ -43,10 +44,9 @@ export default function StudentDashboard() {
   // Real-time bookings for students
   useEffect(() => {
     if (!auth.currentUser) return;
-
-    const q = query(collection(db, "bookings"), where("studentId", "==", auth.currentUser.uid));
+    const q = query(collection(db, 'bookings'), where('studentId', '==', auth.currentUser.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setBookings(data);
     });
     return () => unsubscribe();
@@ -54,11 +54,11 @@ export default function StudentDashboard() {
 
   // Real-time tutor list
   useEffect(() => {
-    const q = collection(db, "users");
+    const q = collection(db, 'users');
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((user) => user.role === "tutor");
+        .filter((user) => user.role === 'tutor');
       setTutors(data);
     });
     return () => unsubscribe();
@@ -87,14 +87,12 @@ export default function StudentDashboard() {
                     border: '1px solid #ddd',
                     borderRadius: '8px',
                     marginBottom: '1rem',
-                    backgroundColor: b.status === "pending" ? "#fff7ed" : "#f9fafb"
+                    backgroundColor: b.status === 'pending' ? '#fff7ed' : '#f9fafb',
                   }}
                 >
                   <p><strong>Tutor:</strong> {b.tutorName}</p>
                   <p><strong>Subject:</strong> {b.subject || 'N/A'}</p>
-                  <p>
-                    <strong>Date & Time:</strong> {b.date} at {b.time}
-                  </p>
+                  <p><strong>Date & Time:</strong> {b.date} at {b.time}</p>
                   <p><strong>Status:</strong> {b.status}</p>
                 </div>
               ))
@@ -115,8 +113,6 @@ export default function StudentDashboard() {
                 ))
               )}
             </div>
-
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="pagination">
                 <button
@@ -138,12 +134,7 @@ export default function StudentDashboard() {
         );
 
       case 'history':
-        return (
-          <div>
-            <h2 className="section-title">Past Sessions</h2>
-            <p>No past sessions yet.</p>
-          </div>
-        );
+        return <HistoryTab />;
 
       default:
         return null;
@@ -153,7 +144,7 @@ export default function StudentDashboard() {
   return (
     <div className="dashboard-container">
       {/* Tab Navigation */}
-      {/* <div className="tab-nav">
+      <div className="tab-nav">
         <div ref={highlightRef} className="tab-highlight" />
         {tabs.map((tab) => (
           <button
@@ -165,7 +156,7 @@ export default function StudentDashboard() {
             {tab.label}
           </button>
         ))}
-      </div> */}
+      </div>
 
       {/* Tab Content */}
       <div key={activeTab} className={`tab-content ${fade ? 'show' : ''}`}>

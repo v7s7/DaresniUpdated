@@ -128,15 +128,15 @@ const LoginPage = () => {
             <button type="submit">Login</button>
             {error && <p className="error">{error}</p>}
 
-          {/* Google sign in button */}
-          <button onClick={handleGoogleSignIn} className="google-btn">
-            <img
-              src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/google-logo.5867462c.svg"
-              alt="Google"
-              className="google-icon"
-            />
-            Sign in with Google
-          </button>
+            {/* Google sign in button */}
+            <button type="button" onClick={handleGoogleSignIn} className="google-btn">
+              <img
+                src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/google-logo.5867462c.svg"
+                alt="Google"
+                className="google-icon"
+              />
+              Sign in with Google
+            </button>
           </form>
 
           {/* Link to sign up page */}

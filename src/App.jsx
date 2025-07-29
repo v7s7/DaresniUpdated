@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import AdminPage from './pages/Admin/AdminPage'; 
+import AdminPage from './pages/Admin/AdminPage';
 import StudentDashboard from './pages/StudentDashboard';
 import TutorDashboard from './pages/TutorDashBoard';
 import LoginPage from './pages/Login/LoginPage';
@@ -7,25 +7,27 @@ import SignUpPage from './pages/SignUp/SignUpPage';
 import HomePage from './pages/Home/HomePage';
 import TutorProfile from './pages/TutorProfile/TutorProfile';
 import TutorProfilePage from './pages/TutorProfile/TutorProfilePage';
-import ProtectedRoute from './components/ProtectedRoute'; 
+import ProtectedRoute from './components/ProtectedRoute';
 import StudentProfile from "./pages/StudentProfile/StudentProfile";
 import Navbar from './components/Navbar';
 
 import './App.css';
 
-
 function AppWrapper() {
   const location = useLocation();
-  const hideNavbarOnRoutes = ['/', '/signup'];
+const hideNavbarOnRoutes = ['/', '/signup', '/student'];
   const shouldShowNavbar = !hideNavbarOnRoutes.includes(location.pathname);
 
   return (
     <>
       {shouldShowNavbar && <Navbar />}
       <Routes>
+        {/* Auth & Home */}
         <Route path="/" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/home" element={<HomePage />} />
+
+        {/* Tutor & Student Profiles */}
         <Route
           path="/tutor/:id"
           element={
@@ -42,6 +44,9 @@ function AppWrapper() {
             </ProtectedRoute>
           }
         />
+        <Route path="/student/profile" element={<StudentProfile />} />
+
+        {/* Admin & Dashboards */}
         <Route
           path="/admin"
           element={
@@ -58,7 +63,6 @@ function AppWrapper() {
             </ProtectedRoute>
           }
         />
-        <Route path="/student/profile" element={<StudentProfile />} />
         <Route
           path="/tutor"
           element={
@@ -67,7 +71,8 @@ function AppWrapper() {
             </ProtectedRoute>
           }
         />
-        Optional catch-all
+
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </>

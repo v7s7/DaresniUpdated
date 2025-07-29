@@ -1,29 +1,23 @@
-import { useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const isActive = (path) => location.pathname === path;
-
+const Navbar = ({ activeTab, setActiveTab }) => {
   return (
     <div className="navbar">
       <button
-        className={isActive('/student') ? 'active' : ''}
-        onClick={() => navigate('/student')}
+        className={activeTab === 'upcoming' ? 'active' : ''}
+        onClick={() => setActiveTab('upcoming')}
       >
         Upcoming
       </button>
       <button
-        className={isActive('/student/tutors') ? 'active' : ''}
-        onClick={() => navigate('/student/tutors')}
+        className={activeTab === 'tutors' ? 'active' : ''}
+        onClick={() => setActiveTab('tutors')}
       >
         Tutors
       </button>
       <button
-        className={isActive('/student/history') ? 'active' : ''}
-        onClick={() => navigate('/student/history')}
+        className={activeTab === 'history' ? 'active' : ''}
+        onClick={() => setActiveTab('history')}
       >
         History
       </button>
