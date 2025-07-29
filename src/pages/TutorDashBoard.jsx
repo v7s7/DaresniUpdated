@@ -35,8 +35,8 @@ export default function TutorDashboard() {
   useEffect(() => {
     const fetchUpcomingSessions = async () => {
       if (!user) return;
-
       setLoading(true);
+
       const q = query(
         collection(db, "bookings"),
         where("tutorId", "==", user.uid),

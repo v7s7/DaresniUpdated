@@ -15,7 +15,8 @@ import './App.css';
 
 function AppWrapper() {
   const location = useLocation();
-const hideNavbarOnRoutes = ['/', '/signup', '/student'];
+  // Hide navbar on login, signup, student dashboard, and tutor dashboard
+  const hideNavbarOnRoutes = ['/', '/signup', '/student', '/tutor'];
   const shouldShowNavbar = !hideNavbarOnRoutes.includes(location.pathname);
 
   return (
