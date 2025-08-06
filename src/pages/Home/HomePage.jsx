@@ -16,19 +16,20 @@ export default function HomePage() {
   // Fetch tutors from Firestore
 useEffect(() => {
   const fetchTutors = async () => {
-    try {
-      const q = query(collection(db, 'tutors'));
-      const querySnapshot = await getDocs(q);
-      const tutorsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setTutors(tutorsData);
-      console.log('Fetched Tutors:', tutorsData);
-    } catch (error) {
-      console.error('Error fetching tutors:', error);
-    }
-  };
+  try {
+    const q = query(collection(db, 'tutors'));  // Querying 'tutors' collection
+    const querySnapshot = await getDocs(q);
+    const tutorsData = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setTutors(tutorsData);  // Storing fetched data in state
+    console.log('Fetched Tutors:', tutorsData);  // Debugging log
+  } catch (error) {
+    console.error('Error fetching tutors:', error);
+  }
+};
+
   fetchTutors();
 }, []);
 

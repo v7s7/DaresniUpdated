@@ -1,4 +1,3 @@
-import React from 'react';
 import './TutorCard.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +16,7 @@ const TutorCard = ({ tutor }) => {
     <div className="tutor-card-row">
       {/* Tutor Image */}
       <img
-        src={tutor.image || "https://via.placeholder.com/80"}
+        src={tutor.image || "https://daresni.net/website_assets/images/user.jpg"}
         alt={tutor.name || "Tutor"}
         className="avatar-sm"
       />
