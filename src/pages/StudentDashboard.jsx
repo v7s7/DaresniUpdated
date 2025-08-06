@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { db, auth } from '../firebase';
+import { useTutors } from '../TutorContext';  // Import the useTutors hook from the context
 import TutorCard from '../components/TutorCard';
-import HistoryTab from '../components/HistoryTab';  // Import HistoryTab
+import HistoryTab from '../components/HistoryTab';
 import '../pages/Home/HomePage.css';
 
 export default function StudentDashboard() {
@@ -21,7 +20,7 @@ export default function StudentDashboard() {
   const highlightRef = useRef();
 
   const [bookings, setBookings] = useState([]);
-  const [tutors, setTutors] = useState([]);
+  const { tutors, loading } = useTutors();  // Use tutors from context
 
   // Animate tab highlight
   useEffect(() => {
@@ -48,18 +47,6 @@ export default function StudentDashboard() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setBookings(data);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // Real-time tutor list
-  useEffect(() => {
-    const q = collection(db, 'users');
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((user) => user.role === 'tutor');
-      setTutors(data);
     });
     return () => unsubscribe();
   }, []);
@@ -105,7 +92,9 @@ export default function StudentDashboard() {
           <div>
             <h2 className="section-title">Tutors & Coaches List</h2>
             <div className="tutor-list">
-              {currentTutors.length === 0 ? (
+              {loading ? (
+                <p>Loading tutors...</p>
+              ) : currentTutors.length === 0 ? (
                 <p>No tutors available right now.</p>
               ) : (
                 currentTutors.map((tutor) => (

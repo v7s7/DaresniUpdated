@@ -14,17 +14,14 @@ import { auth, db } from '../../firebase';
 import './LoginPage.css';
 
 const LoginPage = () => {
-  // State variables to manage form inputs and flow
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [pendingGoogleUser, setPendingGoogleUser] = useState(null);
   const [selectedRole, setSelectedRole] = useState('');
-
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
-  // Handle login with email and password
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -32,7 +29,7 @@ const LoginPage = () => {
       return;
     }
 
-    try {
+   try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       await redirectBasedOnRole(user.uid);
@@ -41,8 +38,7 @@ const LoginPage = () => {
     }
   };
 
-  // Handle login with Google account
-  const handleGoogleSignIn = async () => {
+ const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -51,7 +47,6 @@ const LoginPage = () => {
       if (userDoc.exists()) {
         await redirectBasedOnRole(user.uid);
       } else {
-        // If it's a new Google user, ask them to choose a role
         setPendingGoogleUser(user);
       }
     } catch (err) {
@@ -59,8 +54,7 @@ const LoginPage = () => {
     }
   };
 
-  // Submit selected role for new Google user
-  const handleRoleSubmit = async (e) => {
+ const handleRoleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedRole) {
       setError('Please select a role.');
@@ -79,8 +73,7 @@ const LoginPage = () => {
     }
   };
 
-  // Redirect user to appropriate dashboard based on their role
-  const redirectBasedOnRole = async (uid) => {
+const redirectBasedOnRole = async (uid) => {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
       const role = userDoc.data().role;
@@ -93,11 +86,10 @@ const LoginPage = () => {
     }
   };
 
-  return (
+   return (
     <div className="login-container">
       <h2>Login</h2>
       {pendingGoogleUser ? (
-        // Show role selection form if user is new from Google login
         <form className="login-form" onSubmit={handleRoleSubmit}>
           <p>Select your role:</p>
           <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}>
@@ -110,41 +102,34 @@ const LoginPage = () => {
           {error && <p className="error">{error}</p>}
         </form>
       ) : (
-        <>
-          {/* Regular email/password login form */}
-          <form className="login-form" onSubmit={handleSubmit}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+        <form className="login-form" onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button type="submit">Login</button>
+          {error && <p className="error">{error}</p>}
+          <button type="button" onClick={handleGoogleSignIn} className="google-btn">
+            <img
+              src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/google-logo.5867462c.svg"
+              alt="Google"
+              className="google-icon"
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button type="submit">Login</button>
-            {error && <p className="error">{error}</p>}
-
-            {/* Google sign in button */}
-            <button type="button" onClick={handleGoogleSignIn} className="google-btn">
-              <img
-                src="https://id-frontend.prod-east.frontend.public.atl-paas.net/assets/google-logo.5867462c.svg"
-                alt="Google"
-                className="google-icon"
-              />
-              Sign in with Google
-            </button>
-          </form>
-
-          {/* Link to sign up page */}
-          <p>
-            Don't have an account? <Link to="/signup">Sign Up</Link>
-          </p>
-        </>
+            Sign in with Google
+          </button>
+        </form>
       )}
+      <p>
+        Don't have an account? <Link to="/signup">Sign Up</Link>
+      </p>
     </div>
   );
 };

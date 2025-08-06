@@ -14,22 +14,23 @@ export default function HomePage() {
   const tutorsPerPage = 20;
 
   // Fetch tutors from Firestore
-  useEffect(() => {
-    const fetchTutors = async () => {
-      try {
-        const q = query(collection(db, 'tutors'));
-        const querySnapshot = await getDocs(q);
-        const tutorsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setTutors(tutorsData);
-      } catch (error) {
-        console.error('Error fetching tutors:', error);
-      }
-    };
-    fetchTutors();
-  }, []);
+useEffect(() => {
+  const fetchTutors = async () => {
+    try {
+      const q = query(collection(db, 'tutors'));
+      const querySnapshot = await getDocs(q);
+      const tutorsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTutors(tutorsData);
+      console.log('Fetched Tutors:', tutorsData);
+    } catch (error) {
+      console.error('Error fetching tutors:', error);
+    }
+  };
+  fetchTutors();
+}, []);
 
   // Filter tutors based on search term
   useEffect(() => {
