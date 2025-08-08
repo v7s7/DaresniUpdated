@@ -1,8 +1,4 @@
-// LoginPage.jsx
-// This page handles login using email/password or Google account
-// It's part of a university senior project built using React and Firebase
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   signInWithEmailAndPassword,
@@ -22,6 +18,13 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
+  // Check if user is already logged in on component mount
+  useEffect(() => {
+    if (auth.currentUser) {
+      redirectBasedOnRole(auth.currentUser.uid);
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -29,7 +32,7 @@ const LoginPage = () => {
       return;
     }
 
-   try {
+    try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       await redirectBasedOnRole(user.uid);
@@ -38,15 +41,17 @@ const LoginPage = () => {
     }
   };
 
- const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const userDoc = await getDoc(doc(db, 'users', user.uid));
 
       if (userDoc.exists()) {
+        // User already exists, navigate based on role
         await redirectBasedOnRole(user.uid);
       } else {
+        // Google login but no role yet, ask for role assignment
         setPendingGoogleUser(user);
       }
     } catch (err) {
@@ -54,7 +59,7 @@ const LoginPage = () => {
     }
   };
 
- const handleRoleSubmit = async (e) => {
+  const handleRoleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedRole) {
       setError('Please select a role.');
@@ -67,26 +72,32 @@ const LoginPage = () => {
         role: selectedRole,
       });
 
+      // Role assigned, now redirect based on role
       await redirectBasedOnRole(pendingGoogleUser.uid);
     } catch (err) {
       setError(err.message);
     }
   };
 
-const redirectBasedOnRole = async (uid) => {
+  const redirectBasedOnRole = async (uid) => {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
       const role = userDoc.data().role;
-      if (role === 'student') navigate('/student');
-      else if (role === 'tutor') navigate('/tutor');
-      else if (role === 'admin') navigate('/admin');
-      else setError('Role not assigned. Please contact support.');
+      if (role === 'student') {
+        navigate('/student');
+      } else if (role === 'tutor') {
+        navigate('/tutor');
+      } else if (role === 'admin') {
+        navigate('/admin');
+      } else {
+        setError('Role not assigned. Please contact support.');
+      }
     } else {
       setError('User data not found.');
     }
   };
 
-   return (
+  return (
     <div className="login-container">
       <h2>Login</h2>
       {pendingGoogleUser ? (

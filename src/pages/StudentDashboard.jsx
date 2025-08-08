@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTutors } from '../TutorContext';  // Import the useTutors hook from the context
+import { auth, db } from '../firebase';
+import { query, collection, where, onSnapshot } from 'firebase/firestore';
 import TutorCard from '../components/TutorCard';
 import HistoryTab from '../components/HistoryTab';
 import '../pages/Home/HomePage.css';
@@ -40,16 +42,28 @@ export default function StudentDashboard() {
     return () => clearTimeout(timeout);
   }, [activeTab]);
 
-  // Real-time bookings for students
   useEffect(() => {
-    if (!auth.currentUser) return;
-    const q = query(collection(db, 'bookings'), where('studentId', '==', auth.currentUser.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setBookings(data);
-    });
-    return () => unsubscribe();
-  }, []);
+  if (!auth.currentUser) {
+    console.log("User is not logged in.");
+    return;
+  }
+
+  console.log("Auth user UID:", auth.currentUser.uid); // Log UID
+  
+  const q = query(
+    collection(db, 'bookings'), 
+    where('studentId', '==', auth.currentUser.uid)
+  );
+  console.log("Firestore query:", q); // Log the query
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setBookings(data);
+  });
+
+  return () => unsubscribe(); // Cleanup on component unmount
+}, []);
+
 
   // Pagination logic
   const indexOfLastTutor = currentPage * tutorsPerPage;

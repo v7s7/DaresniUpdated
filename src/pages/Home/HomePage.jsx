@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import TutorCard from '../../components/TutorCard';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase';
 import './HomePage.css';
 
 export default function HomePage() {
@@ -13,22 +15,22 @@ export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const tutorsPerPage = 20;
 
-  // Fetch tutors from Firestore
-useEffect(() => {
-  const fetchTutors = async () => {
-  try {
-    const q = query(collection(db, 'tutors'));  // Querying 'tutors' collection
-    const querySnapshot = await getDocs(q);
-    const tutorsData = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setTutors(tutorsData);  // Storing fetched data in state
-    console.log('Fetched Tutors:', tutorsData);  // Debugging log
-  } catch (error) {
-    console.error('Error fetching tutors:', error);
-  }
-};
+    // Fetch tutors from Firestore
+  useEffect(() => {
+    const fetchTutors = async () => {
+    try {
+      const q = query(collection(db, 'tutors'));  // Querying 'tutors' collection
+      const querySnapshot = await getDocs(q);
+      const tutorsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTutors(tutorsData);  // Storing fetched data in state
+      console.log('Fetched Tutors:', tutorsData);  // Debugging log
+    } catch (error) {
+      console.error('Error fetching tutors:', error);
+    }
+  };
 
   fetchTutors();
 }, []);
@@ -55,13 +57,30 @@ useEffect(() => {
     navigate(`/tutor/${tutor.id}`, { state: { tutor } });
   };
 
+    // Handle sign out
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      navigate('/login');  // Redirect to login page after sign-out
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
+    
     <div className="home-container">
       <header className="header">
         <h1>DARESNI</h1>
         <div className="cart-icon">🛒</div>
       </header>
 
+      {/* Sign-out Button */}
+      <div className="sign-out-btn">
+        <button onClick={handleSignOut}>Sign Out</button>
+      </div>
+      
+      
       <div className="search-bar">
         <input
           type="text"

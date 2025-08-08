@@ -193,3 +193,23 @@
   z-index: 0;
   transition: width 0.4s, transform 0.4s;
 }
+
+.sign-out-btn {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+}
+
+.sign-out-btn button {
+  padding: 10px 20px;
+  background-color: #9B1B30;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.sign-out-btn button:hover {
+  background-color: #7a1625;
+}
