@@ -15,6 +15,7 @@ import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase'; // Your firebase auth setup
 
+
 import './App.css';
 
 function AppWrapper() {
