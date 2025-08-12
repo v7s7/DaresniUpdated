@@ -27,6 +27,7 @@ export default function SubjectsTab() {
       alert("Please fill all fields.");
       return;
     }
+    
     const newSubject = { name: subjectName, pricePerHour: Number(pricePerHour) };
 
     const updatedSubjects = [...subjects, newSubject];
