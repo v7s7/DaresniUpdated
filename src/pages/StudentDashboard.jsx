@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
-import { useTutors } from '../TutorContext';  // Import the useTutors hook from the context
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useTutors } from '../TutorContext';
 import { auth, db } from '../firebase';
 import { query, collection, where, onSnapshot } from 'firebase/firestore';
 import TutorCard from '../components/TutorCard';
 import HistoryTab from '../components/HistoryTab';
 import '../pages/Home/HomePage.css';
+import { asDate } from '../utils/dates'; // <— new helper
 
 export default function StudentDashboard() {
   const tabs = [
@@ -22,7 +23,7 @@ export default function StudentDashboard() {
   const highlightRef = useRef();
 
   const [bookings, setBookings] = useState([]);
-  const { tutors, loading } = useTutors();  // Use tutors from context
+  const { tutors, loading } = useTutors();
 
   // Animate tab highlight
   useEffect(() => {
@@ -42,61 +43,88 @@ export default function StudentDashboard() {
     return () => clearTimeout(timeout);
   }, [activeTab]);
 
+  // Real-time listener for this student's bookings
   useEffect(() => {
-  if (!auth.currentUser) {
-    console.log("User is not logged in.");
-    return;
-  }
+    if (!auth.currentUser) return;
+    const q = query(
+      collection(db, 'bookings'),
+      where('studentId', '==', auth.currentUser.uid)
+    );
+    const unsub = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setBookings(data);
+    });
+    return () => unsub();
+  }, []);
 
-  console.log("Auth user UID:", auth.currentUser.uid); // Log UID
-  
-  const q = query(
-    collection(db, 'bookings'), 
-    where('studentId', '==', auth.currentUser.uid)
-  );
-  console.log("Firestore query:", q); // Log the query
+  // Derive sections
+  const { pendingBookings, approvedBookings } = useMemo(() => {
+    const pending = [];
+    const approved = [];
+    for (const b of bookings) {
+      if (b.status === 'pending') pending.push(b);
+      else if (b.status === 'approved') approved.push(b);
+    }
+    // Sort by date if present
+    const sorter = (a, b) => {
+      const da = asDate(a.startAt) || asDate(a.date);
+      const dbb = asDate(b.startAt) || asDate(b.date);
+      return (da?.getTime?.() || 0) - (dbb?.getTime?.() || 0);
+    };
+    pending.sort(sorter);
+    approved.sort(sorter);
+    return { pendingBookings: pending, approvedBookings: approved };
+  }, [bookings]);
 
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    setBookings(data);
-  });
-
-  return () => unsubscribe(); // Cleanup on component unmount
-}, []);
-
-
-  // Pagination logic
+  // Pagination for tutors tab
   const indexOfLastTutor = currentPage * tutorsPerPage;
   const indexOfFirstTutor = indexOfLastTutor - tutorsPerPage;
   const currentTutors = tutors.slice(indexOfFirstTutor, indexOfLastTutor);
   const totalPages = Math.ceil(tutors.length / tutorsPerPage);
+
+  const renderBookingRow = (b) => {
+    const when = asDate(b.startAt) || asDate(b.date);
+    return (
+      <div
+        key={b.id}
+        style={{
+          padding: '1rem',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          marginBottom: '0.75rem',
+          backgroundColor: b.status === 'pending' ? '#fff7ed' : '#f9fafb',
+        }}
+      >
+        <p><strong>Tutor:</strong> {b.tutorName || b.tutorId}</p>
+        <p><strong>Subject:</strong> {b.subject || 'N/A'}</p>
+        <p>
+          <strong>Date & Time:</strong>{' '}
+          {when ? when.toLocaleString() : (b.date && b.time ? `${b.date} ${b.time}` : 'Not set')}
+        </p>
+        <p><strong>Status:</strong> {b.status}</p>
+      </div>
+    );
+  };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'upcoming':
         return (
           <div>
-            <h2 className="section-title">Your Upcoming Bookings</h2>
-            {bookings.length === 0 ? (
-              <p>No bookings yet.</p>
+            <h2 className="section-title">Your Bookings</h2>
+
+            <h3 style={{ margin: '0.5rem 0' }}>Pending Approval</h3>
+            {pendingBookings.length === 0 ? (
+              <p>No pending requests.</p>
             ) : (
-              bookings.map((b) => (
-                <div
-                  key={b.id}
-                  style={{
-                    padding: '1rem',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    marginBottom: '1rem',
-                    backgroundColor: b.status === 'pending' ? '#fff7ed' : '#f9fafb',
-                  }}
-                >
-                  <p><strong>Tutor:</strong> {b.tutorName}</p>
-                  <p><strong>Subject:</strong> {b.subject || 'N/A'}</p>
-                  <p><strong>Date & Time:</strong> {b.date} at {b.time}</p>
-                  <p><strong>Status:</strong> {b.status}</p>
-                </div>
-              ))
+              pendingBookings.map(renderBookingRow)
+            )}
+
+            <h3 style={{ margin: '1rem 0 0.5rem' }}>Approved (Upcoming)</h3>
+            {approvedBookings.length === 0 ? (
+              <p>No approved sessions yet.</p>
+            ) : (
+              approvedBookings.map(renderBookingRow)
             )}
           </div>
         );
