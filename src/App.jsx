@@ -1,86 +1,67 @@
+// App.jsx
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { TutorProvider } from './TutorContext.jsx';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
 import AdminPage from './pages/Admin/AdminPage';
 import StudentDashboard from './pages/StudentDashboard';
 import TutorDashboard from './pages/TutorDashBoard';
-import LoginPage from './pages/Login/LoginPage';
-import SignUpPage from './pages/SignUp/SignUpPage';
-import HomePage from './pages/Home/HomePage';
+import HomeTest from './pages/Home/HomeTest'; // <-- new dev home
 import TutorProfile from './pages/TutorProfile/TutorProfile';
 import TutorProfilePage from './pages/TutorProfile/TutorProfilePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import StudentProfile from './pages/StudentProfile/StudentProfile';
 import Navbar from './components/Navbar';
-import { useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebase'; // Your firebase auth setup
-
 
 import './App.css';
 
-function AppWrapper() {
-  const [user, setUser] = useState(null);
+function AppRoutes() {
   const location = useLocation();
+  const { user, role, loading } = useAuth();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-
-    return () => unsubscribe(); // Clean up the listener
-  }, []);
-
-  const hideNavbarOnRoutes = ['/', '/signup'];
+  const hideNavbarOnRoutes = []; // show navbar everywhere during dev
   const shouldShowNavbar = !hideNavbarOnRoutes.includes(location.pathname);
 
-  // Check if the user is logged in and redirect them to the appropriate dashboard
-  const redirectToDashboard = () => {
-    if (user) {
-      if (user.role === 'student') {
-        return <Navigate to="/student" />;
-      } else if (user.role === 'tutor') {
-        return <Navigate to="/tutor" />;
-      } else if (user.role === 'admin') {
-        return <Navigate to="/admin" />;
-      } else {
-        return <Navigate to="/home" />;
-      }
-    }
-    return null; // If the user is not logged in, continue to show the login page
-  };
+  if (loading) return <div>Loading…</div>;
 
   return (
     <>
       {shouldShowNavbar && <Navbar />}
-      <Routes>
-        <Route path="/" element={user ? redirectToDashboard() : <LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/home" element={<HomePage />} />
 
-        {/* Tutor & Student Profiles */}
+      <Routes>
+        {/* Dev home: pick Student or Tutor */}
+        <Route path="/home" element={<HomeTest />} />
+
+        {/* Default route: if we already have a role, jump to its dashboard; else go to /home */}
         <Route
-          path="/tutor/:id"
-          element={
-            <ProtectedRoute role="student" user={user}>
-              <TutorProfile />
-            </ProtectedRoute>
-          }
+          path="/"
+          element={user ? <Navigate to={`/${role || 'home'}`} /> : <Navigate to="/home" />}
         />
+
+        {/* Public tutor profile (keep protected if you want) */}
+        <Route path="/tutor/:id" element={<TutorProfile />} />
+
+        {/* Profiles & dashboards */}
         <Route
           path="/tutor/profile"
           element={
-            <ProtectedRoute role="tutor" user={user}>
+            <ProtectedRoute role="tutor">
               <TutorProfilePage />
             </ProtectedRoute>
           }
         />
-        <Route path="/student/profile" element={<StudentProfile />} />
-
-        {/* Admin & Dashboards */}
+        <Route
+          path="/student/profile"
+          element={
+            <ProtectedRoute role="student">
+              <StudentProfile />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin"
           element={
-            <ProtectedRoute role="admin" user={user}>
+            <ProtectedRoute role="admin">
               <AdminPage />
             </ProtectedRoute>
           }
@@ -88,7 +69,7 @@ function AppWrapper() {
         <Route
           path="/student"
           element={
-            <ProtectedRoute role="student" user={user}>
+            <ProtectedRoute role="student">
               <StudentDashboard />
             </ProtectedRoute>
           }
@@ -96,27 +77,27 @@ function AppWrapper() {
         <Route
           path="/tutor"
           element={
-            <ProtectedRoute role="tutor" user={user}>
+            <ProtectedRoute role="tutor">
               <TutorDashboard />
             </ProtectedRoute>
           }
         />
 
-        {/* Catch-all Route */}
-        <Route path="*" element={<Navigate to="/" />} />
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
     </>
   );
 }
 
-function App() {
+export default function App() {
   return (
-    <TutorProvider>
-      <BrowserRouter>
-        <AppWrapper /> {/* This should be the only routing component */}
-      </BrowserRouter>
-    </TutorProvider>
+    <AuthProvider>
+      <TutorProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </TutorProvider>
+    </AuthProvider>
   );
 }
-
-export default App;
