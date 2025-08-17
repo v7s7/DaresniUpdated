@@ -1,36 +1,105 @@
-// HomePage.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TutorCard from '../../components/TutorCard';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
-import { useTutors } from '../../TutorContext'; // <-- use context
+import { useTutors } from '../../TutorContext';
+import TutorFilters from '../../components/TutorFilters';
 import './HomePage.css';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { tutors, loading } = useTutors(); // <-- from context
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredTutors, setFilteredTutors] = useState([]);
+  const { tutors, loading } = useTutors();
+
+  // Filter state
+  const [filters, setFilters] = useState({
+    query: '',
+    subject: null,
+    location: null,
+    minPrice: null,
+    maxPrice: null,
+    minRating: null,
+    sortBy: null, // 'price_asc' | 'price_desc' | 'rating_desc' | 'rating_asc'
+  });
+
+  // Apply filters
+  const filteredTutors = useMemo(() => {
+    const q = (filters.query || '').toLowerCase().trim();
+
+    const withinPrice = (t) => {
+      // prefer subject-specific price if subject is chosen
+      const subjectPrice = Array.isArray(t.subjects) && filters.subject
+        ? (t.subjects.find(s => (s?.name || '').toLowerCase() === filters.subject?.toLowerCase())?.pricePerHour)
+        : null;
+
+      const price = subjectPrice != null ? subjectPrice : (t.price != null ? t.price : null);
+
+      if (filters.minPrice != null && (price == null || price < filters.minPrice)) return false;
+      if (filters.maxPrice != null && (price == null || price > filters.maxPrice)) return false;
+      return true;
+    };
+
+    const matchesSubject = (t) => {
+      if (!filters.subject) return true;
+      if (Array.isArray(t.subjects)) {
+        if (t.subjects.some(s => (s?.name || '').toLowerCase() === filters.subject.toLowerCase())) return true;
+      }
+      return ((t.expertise || '').toLowerCase() === filters.subject.toLowerCase());
+    };
+
+    const matchesLocation = (t) => {
+      if (!filters.location) return true;
+      return (t.location || '').toLowerCase() === filters.location.toLowerCase();
+    };
+
+    const matchesQuery = (t) => {
+      if (!q) return true;
+      const name = (t.name || '').toLowerCase();
+      const expertise = (t.expertise || '').toLowerCase();
+      const location = (t.location || '').toLowerCase();
+      const subjectsText = Array.isArray(t.subjects) ? t.subjects.map(s => (s?.name || '').toLowerCase()).join(' ') : '';
+      return [name, expertise, location, subjectsText].some(field => field.includes(q));
+    };
+
+    const matchesRating = (t) => {
+      if (filters.minRating == null) return true;
+      const r = Number(t.rating ?? 0);
+      return r >= Number(filters.minRating);
+    };
+
+    let list = (tutors || []).filter(t =>
+      withinPrice(t) && matchesSubject(t) && matchesLocation(t) && matchesQuery(t) && matchesRating(t)
+    );
+
+    // Sorting
+    if (filters.sortBy) {
+      const byPrice = (t) => {
+        const subjectPrice = Array.isArray(t.subjects) && filters.subject
+          ? (t.subjects.find(s => (s?.name || '').toLowerCase() === filters.subject?.toLowerCase())?.pricePerHour)
+          : null;
+        const price = subjectPrice != null ? subjectPrice : (t.price != null ? t.price : Number.POSITIVE_INFINITY);
+        return price;
+      };
+      const byRating = (t) => Number(t.rating ?? -Infinity);
+
+      if (filters.sortBy === 'price_asc') list.sort((a, b) => byPrice(a) - byPrice(b));
+      if (filters.sortBy === 'price_desc') list.sort((a, b) => byPrice(b) - byPrice(a));
+      if (filters.sortBy === 'rating_desc') list.sort((a, b) => byRating(b) - byRating(a));
+      if (filters.sortBy === 'rating_asc') list.sort((a, b) => byRating(a) - byRating(b));
+    }
+
+    return list;
+  }, [tutors, filters]);
+
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const tutorsPerPage = 20;
 
-  // Filter when tutors or searchTerm change
-  useEffect(() => {
-    const term = searchTerm.toLowerCase();
-    const filtered = (tutors || []).filter(t =>
-      (t.name || '').toLowerCase().includes(term) ||
-      (t.expertise || '').toLowerCase().includes(term) ||
-      (t.location || '').toLowerCase().includes(term)
-    );
-    setFilteredTutors(filtered);
-    setCurrentPage(1);
-  }, [searchTerm, tutors]);
+  useEffect(() => { setCurrentPage(1); }, [filters]);
 
-  // Pagination
-  const indexOfLastTutor = currentPage * tutorsPerPage;
-  const indexOfFirstTutor = indexOfLastTutor - tutorsPerPage;
-  const currentTutors = filteredTutors.slice(indexOfFirstTutor, indexOfLastTutor);
+  const indexOfLast = currentPage * tutorsPerPage;
+  const indexOfFirst = indexOfLast - tutorsPerPage;
+  const currentTutors = filteredTutors.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredTutors.length / tutorsPerPage);
 
   const handleViewProfile = (tutor) => {
@@ -38,11 +107,8 @@ export default function HomePage() {
   };
 
   const handleSignOut = async () => {
-    // In dev bypass, your Navbar already clears; if you keep this:
-    try {
-      await signOut(auth);
-    } catch {}
-    navigate('/home'); // safer during dev
+    try { await signOut(auth); } catch {}
+    navigate('/home');
   };
 
   return (
@@ -56,16 +122,13 @@ export default function HomePage() {
         <button onClick={handleSignOut}>Sign Out</button>
       </div>
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search here..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      <TutorFilters
+        tutors={tutors}
+        value={filters}
+        onChange={setFilters}
+      />
 
-      <h2 className="section-title">Tutors & Coaches List</h2>
+      <h2 className="section-title">Tutors & Coaches</h2>
 
       <div className="tutor-list">
         {loading ? (
@@ -79,7 +142,7 @@ export default function HomePage() {
             />
           ))
         ) : (
-          <p>No tutors found.</p>
+          <p>No tutors match your filters.</p>
         )}
       </div>
 
