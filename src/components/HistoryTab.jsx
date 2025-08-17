@@ -1,11 +1,16 @@
-// src/components/HistoryTab.jsx
 import { useEffect, useState } from "react";
 import { db, auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { asDate } from "../utils/dates";
 
-export default function HistoryTab() {
+function formatWhen(session) {
+  const ts = session.startAt?.toDate
+    ? session.startAt.toDate()
+    : (session.date && session.time ? new Date(`${session.date}T${session.time}:00`) : null);
+  return ts ? ts.toLocaleString() : "—";
+}
+
+export default function HistoryTab({ mode = "tutor" }) {
   const [user] = useAuthState(auth);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,22 +19,21 @@ export default function HistoryTab() {
     if (!user) return;
 
     const fetchHistory = async () => {
-      const q = query(
+      setLoading(true);
+      const field = mode === "student" ? "studentId" : "tutorId";
+      const qy = query(
         collection(db, "bookings"),
-        where("tutorId", "==", user.uid),
+        where(field, "==", user.uid),
         where("status", "in", ["completed", "cancelled"])
       );
-      const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const snapshot = await getDocs(qy);
+      const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
       setHistory(data);
       setLoading(false);
     };
 
     fetchHistory();
-  }, [user]);
+  }, [user, mode]);
 
   if (loading) return <p>Loading session history...</p>;
   if (history.length === 0) return <p>No session history found.</p>;
@@ -38,21 +42,19 @@ export default function HistoryTab() {
     <div className="card">
       <h3>📜 Session History</h3>
       <ul>
-        {history.map((session) => {
-          const when =
-            asDate(session.startAt) ||
-            asDate(session.date);
-
-          return (
-            <li key={session.id} style={{ marginBottom: "1rem" }}>
-              <strong>{session.subject || "No Subject"}</strong> with {session.studentName}
-              <br />
-              📅 {when ? when.toLocaleString() : (session.date && session.time ? `${session.date} ${session.time}` : "No Date")}
-              <br />
-              ✅ Status: {session.status}
-            </li>
-          );
-        })}
+        {history.map((session) => (
+          <li key={session.id} style={{ marginBottom: "1rem" }}>
+            <strong>{session.subject || "N/A"}</strong>{" "}
+            {mode === "student" ? (
+              <>with {session.tutorName || session.tutorId}</>
+            ) : (
+              <>with {session.studentName || session.studentId}</>
+            )}
+            <br />
+            📅 {formatWhen(session)} <br />
+            ✅ Status: {session.status}
+          </li>
+        ))}
       </ul>
     </div>
   );

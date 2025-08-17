@@ -1,11 +1,10 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTutors } from '../TutorContext';
 import { auth, db } from '../firebase';
-import { query, collection, where, onSnapshot } from 'firebase/firestore';
+import { query, collection, where, onSnapshot, orderBy, Timestamp } from 'firebase/firestore';
 import TutorCard from '../components/TutorCard';
 import HistoryTab from '../components/HistoryTab';
 import '../pages/Home/HomePage.css';
-import { asDate } from '../utils/dates'; // <— new helper
 
 export default function StudentDashboard() {
   const tabs = [
@@ -43,91 +42,77 @@ export default function StudentDashboard() {
     return () => clearTimeout(timeout);
   }, [activeTab]);
 
-  // Real-time listener for this student's bookings
+  // Subscribe to student's bookings
   useEffect(() => {
     if (!auth.currentUser) return;
-    const q = query(
+
+    const now = Timestamp.now();
+    // We pull all statuses for the student and filter in UI; if you’d like you can
+    // split into two subscriptions (future vs history). Keeping simple here.
+    const qy = query(
       collection(db, 'bookings'),
-      where('studentId', '==', auth.currentUser.uid)
+      where('studentId', '==', auth.currentUser.uid),
+      orderBy('startAt', 'asc')
     );
-    const unsub = onSnapshot(q, (snapshot) => {
+
+    const unsubscribe = onSnapshot(qy, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setBookings(data);
     });
-    return () => unsub();
+
+    return () => unsubscribe();
   }, []);
 
-  // Derive sections
-  const { pendingBookings, approvedBookings } = useMemo(() => {
-    const pending = [];
-    const approved = [];
-    for (const b of bookings) {
-      if (b.status === 'pending') pending.push(b);
-      else if (b.status === 'approved') approved.push(b);
-    }
-    // Sort by date if present
-    const sorter = (a, b) => {
-      const da = asDate(a.startAt) || asDate(a.date);
-      const dbb = asDate(b.startAt) || asDate(b.date);
-      return (da?.getTime?.() || 0) - (dbb?.getTime?.() || 0);
-    };
-    pending.sort(sorter);
-    approved.sort(sorter);
-    return { pendingBookings: pending, approvedBookings: approved };
-  }, [bookings]);
-
-  // Pagination for tutors tab
+  // Pagination logic for Tutors tab
   const indexOfLastTutor = currentPage * tutorsPerPage;
   const indexOfFirstTutor = indexOfLastTutor - tutorsPerPage;
   const currentTutors = tutors.slice(indexOfFirstTutor, indexOfLastTutor);
   const totalPages = Math.ceil(tutors.length / tutorsPerPage);
 
-  const renderBookingRow = (b) => {
-    const when = asDate(b.startAt) || asDate(b.date);
-    return (
-      <div
-        key={b.id}
-        style={{
-          padding: '1rem',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          marginBottom: '0.75rem',
-          backgroundColor: b.status === 'pending' ? '#fff7ed' : '#f9fafb',
-        }}
-      >
-        <p><strong>Tutor:</strong> {b.tutorName || b.tutorId}</p>
-        <p><strong>Subject:</strong> {b.subject || 'N/A'}</p>
-        <p>
-          <strong>Date & Time:</strong>{' '}
-          {when ? when.toLocaleString() : (b.date && b.time ? `${b.date} ${b.time}` : 'Not set')}
-        </p>
-        <p><strong>Status:</strong> {b.status}</p>
-      </div>
-    );
-  };
+  function formatWhen(b) {
+    const ts = b.startAt?.toDate
+      ? b.startAt.toDate()
+      : (b.date && b.time ? new Date(`${b.date}T${b.time}:00`) : null);
+    return ts ? ts.toLocaleString() : '—';
+  }
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'upcoming':
+      case 'upcoming': {
+        const now = Date.now();
+        const upcoming = bookings.filter((b) => {
+          const t = b.startAt?.toDate ? b.startAt.toDate().getTime() : null;
+          const isFuture = t ? t >= now : true; // keep legacy items if no startAt
+          return isFuture && (b.status === 'pending' || b.status === 'approved');
+        });
+
         return (
           <div>
-            <h2 className="section-title">Your Bookings</h2>
-
-            <h3 style={{ margin: '0.5rem 0' }}>Pending Approval</h3>
-            {pendingBookings.length === 0 ? (
-              <p>No pending requests.</p>
+            <h2 className="section-title">Your Upcoming Sessions</h2>
+            {upcoming.length === 0 ? (
+              <p>No upcoming sessions yet.</p>
             ) : (
-              pendingBookings.map(renderBookingRow)
-            )}
-
-            <h3 style={{ margin: '1rem 0 0.5rem' }}>Approved (Upcoming)</h3>
-            {approvedBookings.length === 0 ? (
-              <p>No approved sessions yet.</p>
-            ) : (
-              approvedBookings.map(renderBookingRow)
+              upcoming.map((b) => (
+                <div
+                  key={b.id}
+                  style={{
+                    padding: '1rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    marginBottom: '1rem',
+                    backgroundColor: b.status === 'pending' ? '#fff7ed' : '#f9fafb',
+                  }}
+                >
+                  <p><strong>Tutor:</strong> {b.tutorName || b.tutorId}</p>
+                  <p><strong>Subject:</strong> {b.subject || 'N/A'}</p>
+                  <p><strong>Date & Time:</strong> {formatWhen(b)}</p>
+                  <p><strong>Status:</strong> {b.status}</p>
+                </div>
+              ))
             )}
           </div>
         );
+      }
 
       case 'tutors':
         return (
@@ -165,7 +150,7 @@ export default function StudentDashboard() {
         );
 
       case 'history':
-        return <HistoryTab />;
+        return <HistoryTab mode="student" />;
 
       default:
         return null;
