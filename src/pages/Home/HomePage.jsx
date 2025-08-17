@@ -1,53 +1,33 @@
+// HomePage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TutorCard from '../../components/TutorCard';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
+import { useTutors } from '../../TutorContext'; // <-- use context
 import './HomePage.css';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [tutors, setTutors] = useState([]);
+  const { tutors, loading } = useTutors(); // <-- from context
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredTutors, setFilteredTutors] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const tutorsPerPage = 20;
 
-    // Fetch tutors from Firestore
-  useEffect(() => {
-    const fetchTutors = async () => {
-    try {
-      const q = query(collection(db, 'tutors'));  // Querying 'tutors' collection
-      const querySnapshot = await getDocs(q);
-      const tutorsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setTutors(tutorsData);  // Storing fetched data in state
-      console.log('Fetched Tutors:', tutorsData);  // Debugging log
-    } catch (error) {
-      console.error('Error fetching tutors:', error);
-    }
-  };
-
-  fetchTutors();
-}, []);
-
-  // Filter tutors based on search term
+  // Filter when tutors or searchTerm change
   useEffect(() => {
     const term = searchTerm.toLowerCase();
-    const filtered = tutors.filter(tutor =>
-      tutor.name?.toLowerCase().includes(term) ||
-      tutor.expertise?.toLowerCase().includes(term) ||
-      tutor.location?.toLowerCase().includes(term)
+    const filtered = (tutors || []).filter(t =>
+      (t.name || '').toLowerCase().includes(term) ||
+      (t.expertise || '').toLowerCase().includes(term) ||
+      (t.location || '').toLowerCase().includes(term)
     );
     setFilteredTutors(filtered);
-    setCurrentPage(1); // Reset to page 1 on new search
+    setCurrentPage(1);
   }, [searchTerm, tutors]);
 
-  // Pagination logic
+  // Pagination
   const indexOfLastTutor = currentPage * tutorsPerPage;
   const indexOfFirstTutor = indexOfLastTutor - tutorsPerPage;
   const currentTutors = filteredTutors.slice(indexOfFirstTutor, indexOfLastTutor);
@@ -57,30 +37,25 @@ export default function HomePage() {
     navigate(`/tutor/${tutor.id}`, { state: { tutor } });
   };
 
-    // Handle sign out
   const handleSignOut = async () => {
+    // In dev bypass, your Navbar already clears; if you keep this:
     try {
       await signOut(auth);
-      navigate('/login');  // Redirect to login page after sign-out
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+    } catch {}
+    navigate('/home'); // safer during dev
   };
 
   return (
-    
     <div className="home-container">
       <header className="header">
         <h1>DARESNI</h1>
         <div className="cart-icon">🛒</div>
       </header>
 
-      {/* Sign-out Button */}
       <div className="sign-out-btn">
         <button onClick={handleSignOut}>Sign Out</button>
       </div>
-      
-      
+
       <div className="search-bar">
         <input
           type="text"
@@ -93,7 +68,9 @@ export default function HomePage() {
       <h2 className="section-title">Tutors & Coaches List</h2>
 
       <div className="tutor-list">
-        {currentTutors.length ? (
+        {loading ? (
+          <p>Loading tutors...</p>
+        ) : currentTutors.length ? (
           currentTutors.map((tutor) => (
             <TutorCard
               key={tutor.id}

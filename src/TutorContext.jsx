@@ -1,12 +1,10 @@
+// TutorContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from './firebase';  // Import Firestore setup
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from './firebase';
 
 const TutorContext = createContext();
-
-export const useTutors = () => {
-  return useContext(TutorContext);
-};
+export const useTutors = () => useContext(TutorContext);
 
 export const TutorProvider = ({ children }) => {
   const [tutors, setTutors] = useState([]);
@@ -15,18 +13,18 @@ export const TutorProvider = ({ children }) => {
   useEffect(() => {
     const fetchTutors = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'tutors'));  // Assuming 'tutors' is your collection name
-        const tutorsData = querySnapshot.docs.map(doc => doc.data());
+        const q = query(collection(db, 'users'), where('role', '==', 'tutor'));
+        const snapshot = await getDocs(q);
+        const tutorsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setTutors(tutorsData);
       } catch (err) {
-        console.error("Error fetching tutors: ", err);
+        console.error('Error fetching tutors:', err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchTutors();
-  }, []);  // Empty array means it runs only once when the app mounts
+  }, []);
 
   return (
     <TutorContext.Provider value={{ tutors, loading }}>
