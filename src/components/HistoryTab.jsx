@@ -1,7 +1,9 @@
+// src/components/HistoryTab.jsx
 import { useEffect, useState } from "react";
 import { db, auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { asDate } from "../utils/dates";
 
 export default function HistoryTab() {
   const [user] = useAuthState(auth);
@@ -30,21 +32,27 @@ export default function HistoryTab() {
   }, [user]);
 
   if (loading) return <p>Loading session history...</p>;
-
   if (history.length === 0) return <p>No session history found.</p>;
 
   return (
     <div className="card">
       <h3>📜 Session History</h3>
       <ul>
-        {history.map((session) => (
-          <li key={session.id} style={{ marginBottom: "1rem" }}>
-            <strong>{session.subject}</strong> with {session.studentName}
-            <br />
-            📅 {new Date(session.date.seconds * 1000).toLocaleString()} <br />
-            ✅ Status: {session.status}
-          </li>
-        ))}
+        {history.map((session) => {
+          const when =
+            asDate(session.startAt) ||
+            asDate(session.date);
+
+          return (
+            <li key={session.id} style={{ marginBottom: "1rem" }}>
+              <strong>{session.subject || "No Subject"}</strong> with {session.studentName}
+              <br />
+              📅 {when ? when.toLocaleString() : (session.date && session.time ? `${session.date} ${session.time}` : "No Date")}
+              <br />
+              ✅ Status: {session.status}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
