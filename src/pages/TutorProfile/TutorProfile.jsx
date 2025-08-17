@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import AvailabilityPicker from "../../components/AvailabilityPicker";
+import BookingWizard from "../../components/BookingWizard";
 
 export default function TutorProfile() {
   const { id } = useParams();
@@ -66,7 +66,6 @@ export default function TutorProfile() {
         </div>
       </div>
 
-      {/* Subjects list (if present) */}
       {Array.isArray(tutor.subjects) && tutor.subjects.length > 0 && (
         <div style={{ marginBottom: "1rem" }}>
           <h4 style={{ margin: "0 0 0.5rem" }}>Subjects</h4>
@@ -80,8 +79,7 @@ export default function TutorProfile() {
         </div>
       )}
 
-      {/* Availability + booking */}
-      <AvailabilityPicker tutor={tutor} />
+      <BookingWizard tutor={tutor} />
     </div>
   );
 }
