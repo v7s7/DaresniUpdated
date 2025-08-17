@@ -1,7 +1,8 @@
+// src/components/TutorCard.jsx
 import './TutorCard.css';
 import { useNavigate } from 'react-router-dom';
 
-const TutorCard = ({ tutor }) => {
+const TutorCard = ({ tutor, nextAvailable }) => {
   const navigate = useNavigate();
 
   const goToProfile = () => {
@@ -14,14 +15,12 @@ const TutorCard = ({ tutor }) => {
 
   return (
     <div className="tutor-card-row">
-      {/* Tutor Image */}
       <img
         src={tutor.image || "https://daresni.net/website_assets/images/user.jpg"}
         alt={tutor.name || "Tutor"}
         className="avatar-sm"
       />
 
-      {/* Tutor Info */}
       <div className="tutor-details">
         <h3>
           {tutor.name || "Unnamed Tutor"}{" "}
@@ -34,9 +33,15 @@ const TutorCard = ({ tutor }) => {
           </p>
         )}
         {tutor.location && <p className="location">📍 {tutor.location}</p>}
+
+        {/* NEW: Next available */}
+        {nextAvailable && (
+          <p className="next-available" style={{ marginTop: 6, color: '#1e3a8a', fontWeight: 600 }}>
+            Next available: {nextAvailable.date} • {nextAvailable.time}
+          </p>
+        )}
       </div>
 
-      {/* Price & Rating */}
       <div className="price-rating">
         <p className="price">
           {tutor.price ? `BHD ${tutor.price}/hr` : "Price not set"}
@@ -44,7 +49,6 @@ const TutorCard = ({ tutor }) => {
         <p className="stars">⭐ {tutor.rating || "N/A"}</p>
       </div>
 
-      {/* Buttons */}
       <div className="tutor-actions">
         <button className="view-btn" onClick={goToProfile}>
           View Profile

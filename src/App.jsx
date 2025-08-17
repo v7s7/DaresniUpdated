@@ -2,6 +2,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { TutorProvider } from './TutorContext.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import DevSeed from './pages/DevSeed.jsx';
 
 import AdminPage from './pages/Admin/AdminPage';
 import StudentDashboard from './pages/StudentDashboard';
@@ -58,6 +59,8 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/dev-seed" element={<DevSeed />} />
+
         <Route
           path="/admin"
           element={

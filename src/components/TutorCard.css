@@ -261,3 +261,6 @@ html.dark {
 .tutor-actions button:hover {
   background-color: #7a1625; 
 }
+.next-available {
+  font-size: 0.9rem;
+}

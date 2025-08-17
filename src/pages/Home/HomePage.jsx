@@ -1,114 +1,114 @@
+// src/pages/Home/HomePage.jsx
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TutorCard from '../../components/TutorCard';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
-import { useTutors } from '../../TutorContext';
-import TutorFilters from '../../components/TutorFilters';
+import useAvailabilityWindowMap from '../../hooks/useAvailabilityWindowMap';
 import './HomePage.css';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { tutors, loading } = useTutors();
+  const [tutors, setTutors] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [subject, setSubject] = useState('');
+  const [minRating, setMinRating] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [onlyWithAvailability, setOnlyWithAvailability] = useState(false);
 
-  // Filter state
-  const [filters, setFilters] = useState({
-    query: '',
-    subject: null,
-    location: null,
-    minPrice: null,
-    maxPrice: null,
-    minRating: null,
-    sortBy: null, // 'price_asc' | 'price_desc' | 'rating_desc' | 'rating_asc'
-  });
+  // Availability map for next 14 days
+  const { map: availabilityMap, loading: availLoading } = useAvailabilityWindowMap(14);
 
-  // Apply filters
-  const filteredTutors = useMemo(() => {
-    const q = (filters.query || '').toLowerCase().trim();
-
-    const withinPrice = (t) => {
-      // prefer subject-specific price if subject is chosen
-      const subjectPrice = Array.isArray(t.subjects) && filters.subject
-        ? (t.subjects.find(s => (s?.name || '').toLowerCase() === filters.subject?.toLowerCase())?.pricePerHour)
-        : null;
-
-      const price = subjectPrice != null ? subjectPrice : (t.price != null ? t.price : null);
-
-      if (filters.minPrice != null && (price == null || price < filters.minPrice)) return false;
-      if (filters.maxPrice != null && (price == null || price > filters.maxPrice)) return false;
-      return true;
-    };
-
-    const matchesSubject = (t) => {
-      if (!filters.subject) return true;
-      if (Array.isArray(t.subjects)) {
-        if (t.subjects.some(s => (s?.name || '').toLowerCase() === filters.subject.toLowerCase())) return true;
-      }
-      return ((t.expertise || '').toLowerCase() === filters.subject.toLowerCase());
-    };
-
-    const matchesLocation = (t) => {
-      if (!filters.location) return true;
-      return (t.location || '').toLowerCase() === filters.location.toLowerCase();
-    };
-
-    const matchesQuery = (t) => {
-      if (!q) return true;
-      const name = (t.name || '').toLowerCase();
-      const expertise = (t.expertise || '').toLowerCase();
-      const location = (t.location || '').toLowerCase();
-      const subjectsText = Array.isArray(t.subjects) ? t.subjects.map(s => (s?.name || '').toLowerCase()).join(' ') : '';
-      return [name, expertise, location, subjectsText].some(field => field.includes(q));
-    };
-
-    const matchesRating = (t) => {
-      if (filters.minRating == null) return true;
-      const r = Number(t.rating ?? 0);
-      return r >= Number(filters.minRating);
-    };
-
-    let list = (tutors || []).filter(t =>
-      withinPrice(t) && matchesSubject(t) && matchesLocation(t) && matchesQuery(t) && matchesRating(t)
-    );
-
-    // Sorting
-    if (filters.sortBy) {
-      const byPrice = (t) => {
-        const subjectPrice = Array.isArray(t.subjects) && filters.subject
-          ? (t.subjects.find(s => (s?.name || '').toLowerCase() === filters.subject?.toLowerCase())?.pricePerHour)
-          : null;
-        const price = subjectPrice != null ? subjectPrice : (t.price != null ? t.price : Number.POSITIVE_INFINITY);
-        return price;
-      };
-      const byRating = (t) => Number(t.rating ?? -Infinity);
-
-      if (filters.sortBy === 'price_asc') list.sort((a, b) => byPrice(a) - byPrice(b));
-      if (filters.sortBy === 'price_desc') list.sort((a, b) => byPrice(b) - byPrice(a));
-      if (filters.sortBy === 'rating_desc') list.sort((a, b) => byRating(b) - byRating(a));
-      if (filters.sortBy === 'rating_asc') list.sort((a, b) => byRating(a) - byRating(b));
+  // Fetch tutors
+  // Fetch tutors
+useEffect(() => {
+  const fetchTutors = async () => {
+    try {
+      // ⬇️ read from users where role == "tutor"
+      const q = query(collection(db, 'users'), where('role', '==', 'tutor'));
+      const querySnapshot = await getDocs(q);
+      const tutorsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTutors(tutorsData);
+    } catch (error) {
+      console.error('Error fetching tutors:', error);
     }
-
-    return list;
-  }, [tutors, filters]);
-
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const tutorsPerPage = 20;
-
-  useEffect(() => { setCurrentPage(1); }, [filters]);
-
-  const indexOfLast = currentPage * tutorsPerPage;
-  const indexOfFirst = indexOfLast - tutorsPerPage;
-  const currentTutors = filteredTutors.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(filteredTutors.length / tutorsPerPage);
-
-  const handleViewProfile = (tutor) => {
-    navigate(`/tutor/${tutor.id}`, { state: { tutor } });
   };
+  fetchTutors();
+}, []);
+
+
+  // Build list of subjects for the filter
+  const allSubjects = useMemo(() => {
+    const set = new Set();
+    tutors.forEach(t => {
+      if (Array.isArray(t.subjects)) {
+        t.subjects.forEach(s => s?.name && set.add(s.name));
+      }
+      if (t.expertise) set.add(t.expertise);
+    });
+    return Array.from(set).sort();
+  }, [tutors]);
+
+  const filteredTutors = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+
+    return tutors.filter(t => {
+      // Search match
+      const inText =
+        !term ||
+        (t.name && t.name.toLowerCase().includes(term)) ||
+        (t.expertise && t.expertise.toLowerCase().includes(term)) ||
+        (t.location && t.location.toLowerCase().includes(term)) ||
+        (t.bio && t.bio.toLowerCase().includes(term));
+
+      if (!inText) return false;
+
+      // Subject filter
+      if (subject) {
+        const hasSubj =
+          (Array.isArray(t.subjects) && t.subjects.some(s => (s?.name || '').toLowerCase() === subject.toLowerCase())) ||
+          (t.expertise && t.expertise.toLowerCase() === subject.toLowerCase());
+        if (!hasSubj) return false;
+      }
+
+      // Rating
+      if (minRating) {
+        const r = Number(minRating);
+        if (!isNaN(r) && Number(t.rating || 0) < r) return false;
+      }
+
+      // Price range
+      const price = Number(t.price ?? NaN);
+      if (minPrice && !isNaN(Number(minPrice))) {
+        if (isNaN(price) || price < Number(minPrice)) return false;
+      }
+      if (maxPrice && !isNaN(Number(maxPrice))) {
+        if (isNaN(price) || price > Number(maxPrice)) return false;
+      }
+
+      // Availability requirement
+      if (onlyWithAvailability) {
+        const avail = availabilityMap[t.id];
+        if (!avail) return false;
+      }
+
+      return true;
+    });
+  }, [tutors, searchTerm, subject, minRating, minPrice, maxPrice, onlyWithAvailability, availabilityMap]);
 
   const handleSignOut = async () => {
-    try { await signOut(auth); } catch {}
-    navigate('/home');
+    try {
+      await signOut(auth);
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   return (
@@ -122,47 +122,69 @@ export default function HomePage() {
         <button onClick={handleSignOut}>Sign Out</button>
       </div>
 
-      <TutorFilters
-        tutors={tutors}
-        value={filters}
-        onChange={setFilters}
-      />
+      {/* Filters */}
+      <div className="filters" style={{ display:'grid', gap:'0.5rem', gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr', alignItems:'end', marginBottom:'1rem' }}>
+        <div className="search-bar" style={{ gridColumn:'span 2' }}>
+          <input
+            type="text"
+            placeholder="Search name, expertise, location…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-      <h2 className="section-title">Tutors & Coaches</h2>
+        <div>
+          <label style={{ display:'block', fontSize:12, color:'#555' }}>Subject</label>
+          <select value={subject} onChange={(e)=>setSubject(e.target.value)} style={{ width:'100%' }}>
+            <option value="">Any</option>
+            {allSubjects.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label style={{ display:'block', fontSize:12, color:'#555' }}>Min Rating</label>
+          <input type="number" step="0.1" min="0" max="5" value={minRating} onChange={(e)=>setMinRating(e.target.value)} />
+        </div>
+
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.5rem' }}>
+          <div>
+            <label style={{ display:'block', fontSize:12, color:'#555' }}>Min Price</label>
+            <input type="number" value={minPrice} onChange={(e)=>setMinPrice(e.target.value)} />
+          </div>
+          <div>
+            <label style={{ display:'block', fontSize:12, color:'#555' }}>Max Price</label>
+            <input type="number" value={maxPrice} onChange={(e)=>setMaxPrice(e.target.value)} />
+          </div>
+        </div>
+
+        <div style={{ display:'flex', gap:'0.5rem', alignItems:'center' }}>
+          <input
+            id="onlyAvail"
+            type="checkbox"
+            checked={onlyWithAvailability}
+            onChange={(e)=>setOnlyWithAvailability(e.target.checked)}
+          />
+          <label htmlFor="onlyAvail">Only with availability (14d)</label>
+        </div>
+      </div>
+
+      <h2 className="section-title">
+        Tutors & Coaches List {onlyWithAvailability && !availLoading ? `(${filteredTutors.length} with slots)` : ''}
+      </h2>
 
       <div className="tutor-list">
-        {loading ? (
-          <p>Loading tutors...</p>
-        ) : currentTutors.length ? (
-          currentTutors.map((tutor) => (
+        {filteredTutors.length ? (
+          filteredTutors.map((tutor) => (
             <TutorCard
               key={tutor.id}
               tutor={tutor}
-              onViewProfile={() => handleViewProfile(tutor)}
+              nextAvailable={availabilityMap[tutor.id] || null}
             />
           ))
         ) : (
-          <p>No tutors match your filters.</p>
+          <p>{onlyWithAvailability ? 'No tutors with upcoming availability.' : 'No tutors found.'}</p>
         )}
       </div>
-
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <span>Page {currentPage} of {totalPages}</span>
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-        </div>
-      )}
     </div>
   );
 }

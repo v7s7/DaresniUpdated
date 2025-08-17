@@ -1,9 +1,9 @@
-// TutorContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+// src/TutorContext.jsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from './firebase';
 
-const TutorContext = createContext();
+const TutorContext = createContext({ tutors: [], loading: true });
 export const useTutors = () => useContext(TutorContext);
 
 export const TutorProvider = ({ children }) => {
@@ -11,19 +11,20 @@ export const TutorProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTutors = async () => {
-      try {
-        const q = query(collection(db, 'users'), where('role', '==', 'tutor'));
-        const snapshot = await getDocs(q);
-        const tutorsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setTutors(tutorsData);
-      } catch (err) {
-        console.error('Error fetching tutors:', err);
-      } finally {
+    const q = query(collection(db, 'users'), where('role', '==', 'tutor'));
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const arr = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setTutors(arr);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Error listening tutors:', err);
         setLoading(false);
       }
-    };
-    fetchTutors();
+    );
+    return unsubscribe;
   }, []);
 
   return (
